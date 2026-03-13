@@ -387,6 +387,8 @@
             display: flex;
             gap: 0.5rem;
             margin-top: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
         }
         
         .task-move-btn {
@@ -470,6 +472,9 @@
             border-left: 4px solid var(--fire-flame);
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             position: relative;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
         }
 
         .note-card::before {
@@ -488,6 +493,9 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 0.5rem;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
         }
 
         textarea, input[type="text"], input[type="url"] {
@@ -546,6 +554,16 @@
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .reference-item > div:first-child {
+            flex: 1;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .reference-link {
@@ -1079,7 +1097,7 @@
                 <div style="margin-top: 2rem;">
                     <input type="text" id="noteTitle" placeholder="Note Title (e.g., 'Goulson Chapter 7 - Key Points')">
                     <textarea id="noteContent" placeholder="Add your notes, research findings, or brainstorming here..."></textarea>
-                    <button class="add-button" onclick="addNote()">+ Add Note</button>
+                    <button class="add-button" id="addNoteBtn" onclick="addNote()">+ Add Note</button>
                 </div>
             </div>
         </div>
@@ -1207,6 +1225,7 @@
         // Data state
         let taskStates = {};
         let notes = [];
+        let editingNoteId = null;
         let references = [];
         let documentation = {
             screenshots: [],
@@ -1587,6 +1606,12 @@
         // Create task HTML
         function createTaskHTML(taskText, idx, weekNum, status) {
             const isCompleted = status === 'done' ? ' completed' : '';
+            
+            // Get all week numbers for the dropdown
+            const weekOptions = Object.keys(taskStates)
+                .map(week => `<option value="${week}" ${week === weekNum ? 'selected' : ''}>${taskStates[week].name || 'Week ' + week}</option>`)
+                .join('');
+            
             return `
                 <li class="task-item${isCompleted}" 
                     draggable="true" 
@@ -1603,6 +1628,10 @@
                         <button class="task-move-btn edit-btn" onclick="editTask(${weekNum}, '${status}', ${idx})">✏️ Edit</button>
                         ${status !== 'todo' ? `<button class="task-move-btn" onclick="moveTask(${weekNum}, '${status}', ${idx}, 'left')">← Move Left</button>` : ''}
                         ${status !== 'done' ? `<button class="task-move-btn" onclick="moveTask(${weekNum}, '${status}', ${idx}, 'right')">Move Right →</button>` : ''}
+                        <select class="week-selector" id="weekSelect_${weekNum}_${status}_${idx}" style="padding: 0.3rem 0.5rem; border-radius: 3px; border: 1px solid var(--ash-gray); font-family: 'Space Mono', monospace; font-size: 0.7rem; margin-right: 0.25rem;">
+                            ${weekOptions}
+                        </select>
+                        <button class="task-move-btn" onclick="moveTaskToWeek(${weekNum}, '${status}', ${idx})" style="background: var(--stem-green);">📅 Move Week</button>
                         <button class="task-move-btn" onclick="deleteTask(${weekNum}, '${status}', ${idx})">🗑️ Delete</button>
                     </div>
                 </li>
@@ -1715,6 +1744,33 @@
             }
         }
         
+        // Move task to a different week
+        function moveTaskToWeek(fromWeek, status, idx) {
+            const selector = document.getElementById(`weekSelect_${fromWeek}_${status}_${idx}`);
+            const toWeek = selector.value;
+            
+            // Check if moving to a different week
+            if (toWeek === fromWeek) {
+                alert('Task is already in this week!');
+                return;
+            }
+            
+            // Get the task
+            const task = taskStates[fromWeek].tasks[status][idx];
+            
+            // Remove from current week
+            taskStates[fromWeek].tasks[status].splice(idx, 1);
+            
+            // Add to target week (maintaining the same status)
+            taskStates[toWeek].tasks[status].push(task);
+            
+            saveAndRender();
+            
+            // Show confirmation
+            const weekName = taskStates[toWeek].name || `Week ${toWeek}`;
+            alert(`✓ Task moved to ${weekName}`);
+        }
+        
         // Add new task
         function addNewTask(weekNum, status) {
             const taskText = prompt('Enter task description:');
@@ -1757,12 +1813,25 @@
                 return;
             }
             
-            notes.push({
-                id: Date.now(),
-                title: title,
-                content: content,
-                date: new Date().toLocaleDateString()
-            });
+            if (editingNoteId) {
+                // Update existing note
+                const note = notes.find(n => n.id === editingNoteId);
+                if (note) {
+                    note.title = title;
+                    note.content = content;
+                    note.date = new Date().toLocaleDateString();
+                }
+                editingNoteId = null;
+                document.getElementById('addNoteBtn').textContent = '+ Add Note';
+            } else {
+                // Add new note
+                notes.push({
+                    id: Date.now(),
+                    title: title,
+                    content: content,
+                    date: new Date().toLocaleDateString()
+                });
+            }
             
             saveData();
             document.getElementById('noteTitle').value = '';
@@ -1777,9 +1846,23 @@
                     <div class="note-title">${note.title}</div>
                     <div style="font-size: 0.85rem; color: var(--ash-gray); margin-bottom: 0.5rem;">${note.date}</div>
                     <div style="white-space: pre-wrap;">${note.content}</div>
-                    <button class="delete-button" style="margin-top: 1rem;" onclick="deleteNote(${note.id})">Delete</button>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <button class="add-button" style="margin: 0;" onclick="editNote(${note.id})">Edit</button>
+                        <button class="delete-button" style="margin: 0;" onclick="deleteNote(${note.id})">Delete</button>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function editNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                document.getElementById('noteTitle').value = note.title;
+                document.getElementById('noteContent').value = note.content;
+                editingNoteId = id;
+                document.getElementById('addNoteBtn').textContent = '✓ Update Note';
+                document.getElementById('noteTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         function deleteNote(id) {

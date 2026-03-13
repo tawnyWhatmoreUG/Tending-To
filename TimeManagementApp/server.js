@@ -8,7 +8,9 @@ const PORT = 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+// Increase limit to 100mb to handle mood board images (stored as data URLs)
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.static(__dirname));
 
 // Serve the HTML file
@@ -21,6 +23,7 @@ app.post('/api/save', (req, res) => {
     try {
         const data = req.body;
         const jsonString = JSON.stringify(data, null, 2);
+        const sizeInMB = (Buffer.byteLength(jsonString, 'utf8') / (1024 * 1024)).toFixed(2);
         
         fs.writeFileSync(
             path.join(__dirname, 'data.json'),
@@ -28,8 +31,8 @@ app.post('/api/save', (req, res) => {
             'utf8'
         );
         
-        console.log('✅ Data saved successfully at', new Date().toLocaleString());
-        res.json({ success: true, message: 'Data saved successfully' });
+        console.log(`✅ Data saved successfully at ${new Date().toLocaleString()} (${sizeInMB} MB)`);
+        res.json({ success: true, message: 'Data saved successfully', size: sizeInMB + ' MB' });
     } catch (error) {
         console.error('❌ Error saving data:', error);
         res.status(500).json({ success: false, message: error.message });
