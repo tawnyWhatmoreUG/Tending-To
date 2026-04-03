@@ -1,0 +1,43 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tending To VR", "Tending To VR", "{B4AB6E95-F441-CF6D-848A-DBE4B9BC306D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.XR.Interaction.Toolkit.Samples.StarterAssets.Editor", "Tending To VR\Unity.XR.Interaction.Toolkit.Samples.StarterAssets.Editor.csproj", "{40ED5B53-060D-147D-9821-D56F35295D80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.XR.Interaction.Toolkit.Samples.StarterAssets", "Tending To VR\Unity.XR.Interaction.Toolkit.Samples.StarterAssets.csproj", "{54F28E02-940A-5402-C7FE-0CAC3F1F319D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Tending To VR\Assembly-CSharp.csproj", "{411142F0-5486-4893-272B-9271B96F444F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40ED5B53-060D-147D-9821-D56F35295D80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40ED5B53-060D-147D-9821-D56F35295D80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40ED5B53-060D-147D-9821-D56F35295D80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40ED5B53-060D-147D-9821-D56F35295D80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54F28E02-940A-5402-C7FE-0CAC3F1F319D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54F28E02-940A-5402-C7FE-0CAC3F1F319D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54F28E02-940A-5402-C7FE-0CAC3F1F319D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54F28E02-940A-5402-C7FE-0CAC3F1F319D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{411142F0-5486-4893-272B-9271B96F444F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{411142F0-5486-4893-272B-9271B96F444F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{411142F0-5486-4893-272B-9271B96F444F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{411142F0-5486-4893-272B-9271B96F444F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{40ED5B53-060D-147D-9821-D56F35295D80} = {B4AB6E95-F441-CF6D-848A-DBE4B9BC306D}
+		{54F28E02-940A-5402-C7FE-0CAC3F1F319D} = {B4AB6E95-F441-CF6D-848A-DBE4B9BC306D}
+		{411142F0-5486-4893-272B-9271B96F444F} = {B4AB6E95-F441-CF6D-848A-DBE4B9BC306D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2903FD2-208B-4FC7-B2ED-0FAE1E478544}
+	EndGlobalSection
+EndGlobal
