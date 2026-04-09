@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f78ab013da990774789c440d32d387f3
+guid: acd4b45b2e1a242ed85d6e6e7b932879
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,18 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Cloth
-    second: {fileID: 2100000, guid: 7bc856ecdfb20470f8d07a6547ac460d, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Rivet
-    second: {fileID: 2100000, guid: 63643955e95f3432cb3e980741d1496a, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Wood
-    second: {fileID: 2100000, guid: d652f0058a50c406986704dbe14959bd, type: 2}
+      name: lambert2SG
+    second: {fileID: 2100000, guid: a9a4270072e5e4881ba4573705b2c702, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

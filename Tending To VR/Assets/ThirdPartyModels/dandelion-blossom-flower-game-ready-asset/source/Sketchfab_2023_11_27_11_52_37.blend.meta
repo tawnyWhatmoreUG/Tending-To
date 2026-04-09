@@ -3,7 +3,12 @@ guid: 2a81ebd6cedac8849b1f2c6968c9e592
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dandelion
+    second: {fileID: 2100000, guid: aec59d9e965c64d928fd9746d5db8d0a, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
