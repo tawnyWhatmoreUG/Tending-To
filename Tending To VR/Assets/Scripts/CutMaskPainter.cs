@@ -21,8 +21,13 @@ public class CutMaskPainter : MonoBehaviour
 
     void Awake()
     {
+        // Check if R8 is supported, otherwise fallback to ARGB32
+        RenderTextureFormat format = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.R8) 
+            ? RenderTextureFormat.R8 
+            : RenderTextureFormat.ARGB32;
+
         // Create the RenderTexture — starts fully black (no grass cut)
-        cutMask = new RenderTexture(resolution, resolution, 0, RenderTextureFormat.R8);
+        cutMask = new RenderTexture(resolution, resolution, 0, format, RenderTextureReadWrite.Linear);
         cutMask.filterMode = FilterMode.Bilinear;
         cutMask.Create();
 

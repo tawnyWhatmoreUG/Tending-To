@@ -37,7 +37,7 @@ Shader "Custom/Grass"
             {
                 float4 vertex    : POSITION;
                 float2 uv        : TEXCOORD0;
-                uint   instanceID: SV_InstanceID;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f
@@ -45,14 +45,23 @@ Shader "Custom/Grass"
                 float4 pos    : SV_POSITION;
                 float2 uv     : TEXCOORD0;
                 float  cutVal : TEXCOORD1;   // 0 = long, 1 = cut
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
             };
 
             v2f vert(appdata v)
             {
                 v2f o;
 
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_OUTPUT(v2f, o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+
                 // Fetch this blade's world position and height scale
-                float4 data       = _Positions[v.instanceID];
+                // Unity sets up unity_InstanceID so that it maps correctly to the user array index
+                // even in Single Pass Instanced rendering.
+                float4 data       = _Positions[unity_InstanceID];
                 float3 worldRoot  = data.xyz;
                 float  heightScale = data.w;
 
@@ -92,6 +101,9 @@ Shader "Custom/Grass"
 
             float4 frag(v2f i) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(i);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+
                 // Blend colour from long-grass green to cut-grass straw
                 float4 col = lerp(_BaseColor, _CutColor, i.cutVal);
 

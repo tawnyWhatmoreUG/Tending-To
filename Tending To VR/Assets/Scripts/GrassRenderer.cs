@@ -51,7 +51,17 @@ public class GrassRenderer : MonoBehaviour
         // Args buffer: index count, instance count, start index, base vertex, start instance
         uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
         args[0] = bladeMesh.GetIndexCount(0);
-        args[1] = (uint)bladeCount;
+        
+        // Single-pass instanced rendering requires us to manually manually double the 
+        // instance count for indirect draw calls because unity cannot automatically scale 
+        // the compute buffer value.
+        uint instanceCount = (uint)bladeCount;
+        if (UnityEngine.XR.XRSettings.enabled && UnityEngine.XR.XRSettings.stereoRenderingMode == UnityEngine.XR.XRSettings.StereoRenderingMode.SinglePassInstanced)
+        {
+            instanceCount *= 2;
+        }
+        args[1] = instanceCount;
+
         _argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint),
                                         ComputeBufferType.IndirectArguments);
         _argsBuffer.SetData(args);

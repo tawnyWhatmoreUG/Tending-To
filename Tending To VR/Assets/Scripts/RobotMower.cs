@@ -51,6 +51,7 @@ public class RobotMower : MonoBehaviour
     // ─────────────────────────────────────────
     private enum State
     {
+        Idle,
         Mowing,
         Turn_RotateToRow,
         Turn_MoveToRow,
@@ -61,7 +62,7 @@ public class RobotMower : MonoBehaviour
         Done
     }
 
-    private State state;
+    private State state = State.Idle;
 
     private float minX, maxX, minZ, maxZ;
     private float yPos;
@@ -80,6 +81,11 @@ public class RobotMower : MonoBehaviour
     // Init
     // ─────────────────────────────────────────
     void Start()
+    {
+       // StartMowing();
+    }
+
+    public void StartMowing()
     {
         if (lawnCollider == null)
         {
@@ -136,6 +142,7 @@ public class RobotMower : MonoBehaviour
     {
         switch (state)
         {
+            case State.Idle:                                                          break;
             case State.Mowing:                      UpdateMowing();                   break;
             case State.Turn_RotateToRow:            UpdateRotateToRow();              break;
             case State.Turn_MoveToRow:              UpdateMoveToRow();                break;
