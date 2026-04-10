@@ -5,8 +5,8 @@ public class DandelionController : MonoBehaviour
 {
     public Slider progressBar;
     public MeshRenderer[] dandelionRenderers;
-    public AudioSource completionSound;
     public WeedkillerController weedkillScript;
+    public AudioSource completionAudio; // Assign the canvas AudioSource here
     
     [Range(0, 1)] private float progress = 0f;
     public float spraySpeed = 0.2f;
@@ -45,7 +45,11 @@ public class DandelionController : MonoBehaviour
     }
 
     void CompleteTask() {
-        completionSound.Play();
+        // Play completion sound
+        if (completionAudio != null) {
+            completionAudio.Play();
+        }
+        
         progressBar.gameObject.SetActive(false);
         weedkillScript.ResetTool();
         progress = 0; // Reset for next time if needed
