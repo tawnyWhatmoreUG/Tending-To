@@ -1409,7 +1409,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1453,7 +1453,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -2596,10 +2596,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bd8132891eaf24c3b9a56c3f50748ae2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 701349067}
+      addedObject: {fileID: 701349068}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bd8132891eaf24c3b9a56c3f50748ae2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 701349068}
+      addedObject: {fileID: 701349069}
   m_SourcePrefab: {fileID: 100100000, guid: bd8132891eaf24c3b9a56c3f50748ae2, type: 3}
 --- !u!4 &298558572 stripped
 Transform:
@@ -3097,7 +3097,7 @@ Transform:
   m_GameObject: {fileID: 388126029}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.17, z: 0.2}
+  m_LocalPosition: {x: 0, y: -0.21999975, z: -0.65}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3565,14 +3565,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 488034511}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.9249777, z: 0, w: 0.38002136}
-  m_LocalPosition: {x: -50.07, y: -0.39999992, z: -1.36}
+  m_LocalRotation: {x: -0, y: -0.84659195, z: -0, w: 0.5322426}
+  m_LocalPosition: {x: -50.07, y: -0.39999992, z: -1.3600003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1714281468}
   m_Father: {fileID: 2097114633}
-  m_LocalEulerAnglesHint: {x: 0, y: -135.33, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -115.686, z: 0}
 --- !u!114 &488034513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3769,7 +3769,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3813,7 +3813,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -9938,10 +9938,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3baafa25d299940dd97b77d45f6e8af5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1978485636}
+      addedObject: {fileID: 1978485637}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3baafa25d299940dd97b77d45f6e8af5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1978485637}
+      addedObject: {fileID: 1978485638}
   m_SourcePrefab: {fileID: 100100000, guid: 3baafa25d299940dd97b77d45f6e8af5, type: 3}
 --- !u!4 &588049560 stripped
 Transform:
@@ -10182,7 +10182,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -10226,7 +10226,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -10946,7 +10946,28 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bd8132891eaf24c3b9a56c3f50748ae2, type: 3}
   m_PrefabInstance: {fileID: 298558571}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &701349067
+--- !u!65 &701349068
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701349066}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.8006552, y: 1, z: 0.5323012}
+  m_Center: {x: 0.099671856, y: 0, z: -0.0010592381}
+--- !u!114 &701349069
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10996,7 +11017,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919260410}
         m_TargetAssemblyTypeName: WindowBoxPlantingController, Assembly-CSharp
-        m_MethodName: OnPlantSelected
+        m_MethodName: OnPlant3Selected
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11032,27 +11053,79 @@ MonoBehaviour:
   m_StartingInteractionStrengthFilters: []
   m_AutoFindParentInteractableInHierarchy: 0
   m_ParentInteractableObject: {fileID: 0}
---- !u!65 &701349068
-BoxCollider:
+--- !u!1001 &712856615
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 701349066}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.8006552, y: 1, z: 0.5323012}
-  m_Center: {x: 0.099671856, y: 0, z: -0.0010592381}
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.8322829
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.106
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.93565303
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
+      propertyPath: m_Name
+      value: sunflower
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2572b8ad319d5ec47b645329728af50e, type: 3}
 --- !u!114 &721378083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12487,7 +12560,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -12531,7 +12604,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -12763,9 +12836,9 @@ MonoBehaviour:
     dropPosition: {fileID: 751186490}
   windowBoxTransform: {fileID: 1096236633}
   plantAnchors:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2066831641}
+  - {fileID: 388126030}
+  - {fileID: 1992637361}
   windowBoxSillPosition: {fileID: 1096236633}
   moveDuration: 1.5
   potDropDuration: 0.8
@@ -12786,6 +12859,7 @@ MonoBehaviour:
       m_SingletonActionBindings: []
       m_Flags: 0
     m_Reference: {fileID: 383181498}
+  plantRotationOffset: 0
   completionAudio: {fileID: 1096236634}
 --- !u!4 &922114417 stripped
 Transform:
@@ -13359,17 +13433,38 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 88e172146c62c4a62baa9fcdacdd80b1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 973909130}
+      addedObject: {fileID: 973909131}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 88e172146c62c4a62baa9fcdacdd80b1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 973909131}
+      addedObject: {fileID: 973909132}
   m_SourcePrefab: {fileID: 100100000, guid: 88e172146c62c4a62baa9fcdacdd80b1, type: 3}
 --- !u!4 &973909129 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 88e172146c62c4a62baa9fcdacdd80b1, type: 3}
   m_PrefabInstance: {fileID: 973909128}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &973909130
+--- !u!65 &973909131
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407837196}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.43751013, y: 1, z: 0.69038475}
+  m_Center: {x: 0.2812448, y: 0, z: -0.00195624}
+--- !u!114 &973909132
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -13419,7 +13514,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919260410}
         m_TargetAssemblyTypeName: WindowBoxPlantingController, Assembly-CSharp
-        m_MethodName: OnPlantSelected
+        m_MethodName: OnPlant1Selected
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13455,27 +13550,6 @@ MonoBehaviour:
   m_StartingInteractionStrengthFilters: []
   m_AutoFindParentInteractableInHierarchy: 0
   m_ParentInteractableObject: {fileID: 0}
---- !u!65 &973909131
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 407837196}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.43751013, y: 1, z: 0.69038475}
-  m_Center: {x: 0.2812448, y: 0, z: -0.00195624}
 --- !u!1 &1022268855
 GameObject:
   m_ObjectHideFlags: 0
@@ -28965,7 +29039,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -29009,7 +29083,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -29226,7 +29300,28 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3baafa25d299940dd97b77d45f6e8af5, type: 3}
   m_PrefabInstance: {fileID: 588049559}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1978485636
+--- !u!65 &1978485637
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978485635}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.53962153, y: 1, z: 0.6341341}
+  m_Center: {x: 0.23018909, y: 0, z: -0.13867326}
+--- !u!114 &1978485638
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -29276,7 +29371,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919260410}
         m_TargetAssemblyTypeName: WindowBoxPlantingController, Assembly-CSharp
-        m_MethodName: OnPlantSelected
+        m_MethodName: OnPlant2Selected
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29312,27 +29407,6 @@ MonoBehaviour:
   m_StartingInteractionStrengthFilters: []
   m_AutoFindParentInteractableInHierarchy: 0
   m_ParentInteractableObject: {fileID: 0}
---- !u!65 &1978485637
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1978485635}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.53962153, y: 1, z: 0.6341341}
-  m_Center: {x: 0.23018909, y: 0, z: -0.13867326}
 --- !u!114 &1981737768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29403,7 +29477,7 @@ Transform:
   m_GameObject: {fileID: 1992637360}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.17, z: 1.62}
+  m_LocalPosition: {x: 0, y: -0.21999975, z: 1.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29999,7 +30073,7 @@ Transform:
   m_GameObject: {fileID: 2066831640}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.17, z: -1.36}
+  m_LocalPosition: {x: 0, y: -0.22, z: -3.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -30246,3 +30320,4 @@ SceneRoots:
   - {fileID: 1213723244}
   - {fileID: 1235198143}
   - {fileID: 900918196}
+  - {fileID: 712856615}

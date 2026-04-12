@@ -61,7 +61,7 @@ Shader "Custom/Grass"
                 // Fetch this blade's world position and height scale
                 // Unity sets up unity_InstanceID so that it maps correctly to the user array index
                 // even in Single Pass Instanced rendering.
-                float4 data       = _Positions[unity_InstanceID];
+                float4 data       = _Positions[UNITY_GET_INSTANCE_ID(v)];
                 float3 worldRoot  = data.xyz;
                 float  heightScale = data.w;
 
