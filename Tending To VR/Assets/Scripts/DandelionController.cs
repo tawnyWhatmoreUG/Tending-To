@@ -13,24 +13,68 @@ public class DandelionController : MonoBehaviour
     public MeshRenderer[] dandelionRenderers;
     public WeedkillerController weedkillScript;
     public AudioSource completionAudio; // Assign the canvas AudioSource here
+    public Canvas progressCanvas;  // The canvas containing the weed killer progress slider
     
     [Range(0, 1)] private float progress = 0f;
     public float spraySpeed = 0.2f;
+    private bool wasEquipped = false;
 
-    void Update() {
-// Only run if the nozzle is actually in the player's hand
-    if (weedkillScript != null && weedkillScript.IsCurrentlyEquipped) {
-        
-        // Only progress if particles are spraying
-        if (weedkillScript.mistParticles.isEmitting) {
-            float distance = Vector3.Distance(weedkillScript.mistParticles.transform.position, transform.position);
-            
-            // Only progress if the player is actually pointing at the dandelions
-            if (distance < 2.5f) { 
-                UpdateProgress();
-            }
+    void Start()
+    {
+        // Hide the progress canvas at start
+        if (progressCanvas != null)
+        {
+            progressCanvas.gameObject.SetActive(false);
+        }
+        if (progressBar != null)
+        {
+            progressBar.gameObject.SetActive(false);
         }
     }
+
+    void Update() {
+        // Show/hide canvas based on tool equipped state
+        if (weedkillScript != null)
+        {
+            bool isEquipped = weedkillScript.IsCurrentlyEquipped;
+            
+            // Show canvas when tool is first equipped
+            if (isEquipped && !wasEquipped)
+            {
+                if (progressCanvas != null)
+                {
+                    progressCanvas.gameObject.SetActive(true);
+                }
+            }
+            // Hide canvas when tool is unequipped
+            else if (!isEquipped && wasEquipped)
+            {
+                if (progressCanvas != null)
+                {
+                    progressCanvas.gameObject.SetActive(false);
+                }
+                if (progressBar != null)
+                {
+                    progressBar.gameObject.SetActive(false);
+                }
+            }
+            
+            wasEquipped = isEquipped;
+            
+            // Only run if the nozzle is actually in the player's hand
+            if (isEquipped) {
+                
+                // Only progress if particles are spraying
+                if (weedkillScript.mistParticles.isEmitting) {
+                    float distance = Vector3.Distance(weedkillScript.mistParticles.transform.position, transform.position);
+                    
+                    // Only progress if the player is actually pointing at the dandelions
+                    if (distance < 2.5f) { 
+                        UpdateProgress();
+                    }
+                }
+            }
+        }
     }
 
     void UpdateProgress() {

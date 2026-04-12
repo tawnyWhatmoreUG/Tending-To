@@ -13,20 +13,64 @@ public class SlugPelletBedController : MonoBehaviour
     public Slider progressBar;
     public SlugPelletController slugPelletController;
     public AudioSource completionAudio;
+    public Canvas progressCanvas;  // The canvas containing the slug pellet progress slider
     
     [Range(0, 1)] private float progress = 0f;
     public float spraySpeed = 0.15f;
+    private bool wasEquipped = false;
+
+    void Start()
+    {
+        // Hide the progress canvas at start
+        if (progressCanvas != null)
+        {
+            progressCanvas.gameObject.SetActive(false);
+        }
+        if (progressBar != null)
+        {
+            progressBar.gameObject.SetActive(false);
+        }
+    }
 
     void Update()
     {
-        // Only run if the bottle is equipped and actively spraying
-        if (slugPelletController != null && slugPelletController.IsCurrentlyEquipped)
+        // Show/hide canvas based on tool equipped state
+        if (slugPelletController != null)
         {
-            if (slugPelletController.IsSpraying)
+            bool isEquipped = slugPelletController.IsCurrentlyEquipped;
+            
+            // Show canvas when tool is first equipped
+            if (isEquipped && !wasEquipped)
             {
-                if (IsPelletInBedArea())
+                if (progressCanvas != null)
                 {
-                    UpdateProgress();
+                    progressCanvas.gameObject.SetActive(true);
+                }
+            }
+            // Hide canvas when tool is unequipped
+            else if (!isEquipped && wasEquipped)
+            {
+                if (progressCanvas != null)
+                {
+                    progressCanvas.gameObject.SetActive(false);
+                }
+                if (progressBar != null)
+                {
+                    progressBar.gameObject.SetActive(false);
+                }
+            }
+            
+            wasEquipped = isEquipped;
+            
+            // Only run if the bottle is equipped and actively spraying
+            if (isEquipped)
+            {
+                if (slugPelletController.IsSpraying)
+                {
+                    if (IsPelletInBedArea())
+                    {
+                        UpdateProgress();
+                    }
                 }
             }
         }
