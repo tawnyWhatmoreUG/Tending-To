@@ -20,37 +20,42 @@ using UnityEngine.InputSystem;
 ///
 ///    Window Box
 ///      Window Box Transform     — the window box GameObject
-///      Plant Anchors            — array of 3 empty Transforms inside window box (positions where plants are placed)
+///      Plant Anchors            — array of 3 empty Transforms inside window box (positions for each plant)
 ///      Window Box Sill Position — empty Transform marking where box ends up (window sill)
 ///      Move Duration            — seconds for box to move to sill (default 1.5s)
 ///      Pot Drop Duration        — seconds for pots to tip over (default 0.8s)
 ///
 ///    Compost Bag
 ///      Compost Bag Closed  — the closed bag mesh (active at start)
-///      Compost Bag Opened  — the open bag mesh (shown after all plants placed)
-///      Compost Bag Soil    — the soil mesh (shown after all plants placed)
+///      Compost Bag Opened  — the open bag mesh (shown on select)
+///      Compost Bag Soil    — the soil mesh (shown on select)
 ///
 ///    VR Hand
 ///      Hand Ray Interactor  — the XRRayInteractor on the right hand
 ///      Hand Line Visual     — the XRInteractorLineVisual on the right hand
 ///      Trigger Action       — Input action for the trigger button
 ///
+///    Plant Alignment
+///      Plant Rotation Offset — Z-axis rotation when plant is equipped (default 0)
+///
 ///    Completion
 ///      Completion Audio — AudioSource with the success sound clip
 ///
 /// 3. Setup XRSimpleInteractable components:
-///    - On each plant's root GameObject, add XRSimpleInteractable
-///      Wire "Select Entered" → WindowBoxPlantingController.OnPlantSelected (same method for all plants)
+///    - On Plant 1's root GameObject, add XRSimpleInteractable
+///      Wire "Select Entered" → WindowBoxPlantingController.OnPlant1Selected
+///    - Repeat for Plant 2 → OnPlant2Selected
+///    - Repeat for Plant 3 → OnPlant3Selected
 ///    - On the Window Box, add XRSimpleInteractable
 ///      Wire "Hover Entered" → OnWindowBoxHoverEnter
 ///      Wire "Hover Exited"  → OnWindowBoxHoverExit
 ///
 /// INTERACTION FLOW
 /// ================
-///   Pick up any plant using ray selection → plant snaps to hand, pot stays behind
-///   Hover over window box + pull trigger → plant places in next available anchor with zeroed rotation
-///   Repeat for remaining plants in any order
-///   After all plants placed: Automatically opens compost bag, moves box to sill, tips over pots, plays sound, completes stage
+///   Step 1: Ray + Select Plant 1  →  plant snaps to hand, pot stays
+///   Step 2: Hover over window box + Trigger  →  plant places in box
+///   Step 3-6: Repeat for Plant 2 and Plant 3
+///   After Plant 3 placed: Automatically opens compost bag, moves box to sill, tips over pots, plays sound, completes stage
 /// </summary>
 public class WindowBoxPlantingController : MonoBehaviour
 {
@@ -93,6 +98,9 @@ public class WindowBoxPlantingController : MonoBehaviour
     public UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual handLineVisual;
     public InputActionProperty triggerAction;
 
+    [Header("Plant Alignment")]
+    public float plantRotationOffset = 0f;
+
     [Header("Completion")]
     public AudioSource completionAudio;
 
@@ -100,12 +108,21 @@ public class WindowBoxPlantingController : MonoBehaviour
     // Private State
     // -------------------------------------------------------------------------
 
+    private enum PlantingState
+    {
+        NoPlantInHand,
+        PlantInHand,
+        Completed
+    }
+
+    private PlantingState currentState = PlantingState.NoPlantInHand;
     private Transform currentPlantInHand;
-    private PlantData currentPlantData;
+    private Transform currentPlantGripPoint;
+    private int currentPlantIndex = -1;
+    private bool[] plantPlaced = new bool[3];
+    private bool[] anchorOccupied = new bool[3];
+    private int plantsPlacedCount = 0;
     private bool isHoveringWindowBox = false;
-    private int nextAnchorIndex = 0;
-    private int plantsPlaced = 0;
-    private const int TOTAL_PLANTS = 3;
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -113,14 +130,18 @@ public class WindowBoxPlantingController : MonoBehaviour
 
     void Start()
     {
-        Debug.Log($"[WindowBoxPlanting] Starting planting interaction. Total plants: {plants.Length}");
+        Debug.Log($"[WindowBoxPlanting] Starting - plants can be placed in any order");
         
         for (int i = 0; i < plants.Length; i++)
         {
             if (plants[i].plantAndSoil == null)
                 Debug.LogError($"[WindowBoxPlanting] Plant {i + 1} plantAndSoil is NULL!");
-            else
-                Debug.Log($"[WindowBoxPlanting] Plant {i + 1} configured: {plants[i].plantAndSoil.name}");
+            plantPlaced[i] = false;
+        }
+        
+        for (int i = 0; i < anchorOccupied.Length; i++)
+        {
+            anchorOccupied[i] = false;
         }
         
         if (compostBagClosed != null) compostBagClosed.SetActive(true);
@@ -151,40 +172,39 @@ public class WindowBoxPlantingController : MonoBehaviour
     }
 
     // -------------------------------------------------------------------------
-    // Plant Selection Method (wire to XRSimpleInteractable Select Entered on all plants)
+    // Plant Selection Methods (wire to XRSimpleInteractable Select Entered)
     // -------------------------------------------------------------------------
 
-    public void OnPlantSelected(SelectEnterEventArgs args)
+    public void OnPlant1Selected(SelectEnterEventArgs args) => OnPlantSelected(0, args);
+    public void OnPlant2Selected(SelectEnterEventArgs args) => OnPlantSelected(1, args);
+    public void OnPlant3Selected(SelectEnterEventArgs args) => OnPlantSelected(2, args);
+
+    private void OnPlantSelected(int plantIndex, SelectEnterEventArgs args)
     {
-        // If already holding a plant, ignore
-        if (currentPlantInHand != null)
-        {
-            Debug.LogWarning("[WindowBoxPlanting] Already holding a plant, ignoring selection.");
-            return;
-        }
-
-        // Find which plant was selected
-        Transform selectedTransform = args.interactableObject.transform;
-        PlantData selectedPlant = null;
+        Debug.Log($"[WindowBoxPlanting] Plant {plantIndex + 1} selected. Current state: {currentState}");
         
-        foreach (PlantData plant in plants)
+        if (currentState == PlantingState.PlantInHand)
         {
-            if (plant.plantAndSoil == selectedTransform || plant.plantAndSoil.IsChildOf(selectedTransform) || selectedTransform.IsChildOf(plant.plantAndSoil))
-            {
-                selectedPlant = plant;
-                break;
-            }
-        }
-
-        if (selectedPlant == null)
-        {
-            Debug.LogError($"[WindowBoxPlanting] Could not find plant data for selected object: {selectedTransform.name}");
+            Debug.LogWarning($"[WindowBoxPlanting] Already holding a plant, ignoring selection");
             return;
         }
-
-        Debug.Log($"[WindowBoxPlanting] Picking up plant: {selectedPlant.plantAndSoil.name}");
-        PickupPlant(selectedPlant, args);
+        
+        if (plantPlaced[plantIndex])
+        {
+            Debug.LogWarning($"[WindowBoxPlanting] Plant {plantIndex + 1} already placed, ignoring");
+            return;
+        }
+        
+        Debug.Log($"[WindowBoxPlanting] Picking up Plant {plantIndex + 1}");
+        PickupPlant(plants[plantIndex], args);
+        currentPlantIndex = plantIndex;
+        currentState = PlantingState.PlantInHand;
     }
+
+    // -------------------------------------------------------------------------
+    // Compost Bag (automatically opens on completion)
+    // -------------------------------------------------------------------------
+    // Note: OnCompostBagSelected is no longer needed - compost bag opens automatically
 
     // -------------------------------------------------------------------------
     // Window Box Hover Detection (wire to XRSimpleInteractable on window box)
@@ -218,21 +238,14 @@ public class WindowBoxPlantingController : MonoBehaviour
     {
         Debug.Log($"[WindowBoxPlanting] PickupPlant started for {plant.plantAndSoil?.name}");
         
-        // Hide the line visual but keep ray enabled for hover detection
         if (handLineVisual != null) handLineVisual.enabled = false;
-
-        // Hide the pot mesh
         if (plant.potMesh != null) plant.potMesh.SetActive(false);
 
-        // Parent to hand
         Transform handTransform = args.interactorObject.transform;
         plant.plantAndSoil.SetParent(handTransform);
-        
-        // Keep the plant upright in world space
-        plant.plantAndSoil.rotation = Quaternion.Euler(0f, handTransform.eulerAngles.y, 0f);
+        plant.plantAndSoil.rotation = Quaternion.Euler(0f, handTransform.eulerAngles.y + plantRotationOffset, 0f);
         plant.plantAndSoil.localPosition = Vector3.zero;
 
-        // Adjust position based on grip point
         if (plant.gripPoint != null)
         {
             Vector3 offset = plant.plantAndSoil.position - plant.gripPoint.position;
@@ -240,58 +253,80 @@ public class WindowBoxPlantingController : MonoBehaviour
         }
 
         currentPlantInHand = plant.plantAndSoil;
-        currentPlantData = plant;
+        currentPlantGripPoint = plant.gripPoint;
         
-        Debug.Log($"[WindowBoxPlanting] Plant picked up successfully. Position: {plant.plantAndSoil.position}");
+        Debug.Log($"[WindowBoxPlanting] Plant picked up successfully");
     }
 
     private void PlacePlantInWindowBox()
     {
-        if (currentPlantInHand == null)
+        if (currentPlantInHand == null || currentPlantIndex < 0)
         {
             Debug.LogWarning("[WindowBoxPlanting] PlacePlantInWindowBox called but no plant in hand!");
             return;
         }
 
-        Debug.Log($"[WindowBoxPlanting] Placing plant in window box. Next anchor index: {nextAnchorIndex}");
-        
-        // Use the next available anchor
-        if (nextAnchorIndex < plantAnchors.Length && plantAnchors[nextAnchorIndex] != null)
+        // Find next available anchor
+        int anchorIndex = -1;
+        for (int i = 0; i < anchorOccupied.Length; i++)
         {
-            Transform anchor = plantAnchors[nextAnchorIndex];
-            
-            // Unparent temporarily to set absolute positioning
-            currentPlantInHand.SetParent(null);
+            if (!anchorOccupied[i])
+            {
+                anchorIndex = i;
+                break;
+            }
+        }
+        
+        if (anchorIndex < 0)
+        {
+            Debug.LogError("[WindowBoxPlanting] No available anchors!");
+            return;
+        }
+
+        Debug.Log($"[WindowBoxPlanting] Placing plant {currentPlantIndex + 1} in anchor {anchorIndex + 1}");
+        
+        // Place at anchor with -90 X rotation to make plants upright
+        if (anchorIndex < plantAnchors.Length && plantAnchors[anchorIndex] != null)
+        {
+            Transform anchor = plantAnchors[anchorIndex];
+            currentPlantInHand.SetParent(windowBoxTransform);
             currentPlantInHand.position = anchor.position;
-            
-            // Zero out world rotation (completely flat/upright)
-            currentPlantInHand.rotation = Quaternion.identity;
-            
-            // Parent to window box, keeping world position and rotation
-            currentPlantInHand.SetParent(windowBoxTransform, worldPositionStays: true);
-            
-            Debug.Log($"[WindowBoxPlanting] Plant placed at anchor {nextAnchorIndex + 1}: {anchor.name}, world rotation reset to identity");
+            currentPlantInHand.rotation = Quaternion.Euler(-90f, 0f, 0f);
+            Debug.Log($"[WindowBoxPlanting] Plant placed at anchor {anchorIndex + 1}: {anchor.name}, rotation set to -90 X");
         }
         else
         {
-            Debug.LogError($"[WindowBoxPlanting] Plant anchor {nextAnchorIndex + 1} not assigned or out of range!");
+            // Fallback to hardcoded positions
+            currentPlantInHand.SetParent(windowBoxTransform);
+            Vector3 localPlantPosition = anchorIndex switch
+            {
+                0 => new Vector3(-0.2f, 0.1f, 0f),
+                1 => new Vector3(0f, 0.1f, 0f),
+                2 => new Vector3(0.2f, 0.1f, 0f),
+                _ => Vector3.zero
+            };
+            currentPlantInHand.localPosition = localPlantPosition;
+            currentPlantInHand.rotation = Quaternion.Euler(-90f, 0f, 0f);
+            Debug.LogWarning($"[WindowBoxPlanting] Plant anchor {anchorIndex + 1} not assigned, using fallback position with -90 X rotation");
         }
 
-        // Re-show the line visual
+        // Mark as placed
+        plantPlaced[currentPlantIndex] = true;
+        anchorOccupied[anchorIndex] = true;
+        plantsPlacedCount++;
+
         if (handLineVisual != null) handLineVisual.enabled = true;
 
-        // Clear current plant references
         currentPlantInHand = null;
-        currentPlantData = null;
+        currentPlantGripPoint = null;
+        currentPlantIndex = -1;
         isHoveringWindowBox = false;
+        currentState = PlantingState.NoPlantInHand;
 
-        // Move to next anchor and increment placed count
-        nextAnchorIndex++;
-        plantsPlaced++;
-
-        // Check if all plants are placed
-        if (plantsPlaced >= TOTAL_PLANTS)
+        // Check completion
+        if (plantsPlacedCount >= 3)
         {
+            currentState = PlantingState.Completed;
             StartCoroutine(CompleteInteraction());
         }
     }
