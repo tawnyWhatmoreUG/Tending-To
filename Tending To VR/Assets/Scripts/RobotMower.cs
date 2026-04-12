@@ -1,7 +1,17 @@
+using System;
 using UnityEngine;
 
 public class RobotMower : MonoBehaviour
 {
+    // ─────────────────────────────────────────
+    // Events
+    // ─────────────────────────────────────────
+    
+    /// <summary>
+    /// Fired when the mower finishes mowing and returns home.
+    /// </summary>
+    public event Action OnMowingComplete;
+
     public enum StartCorner
     {
         TopLeft,     // -X, +Z
@@ -43,6 +53,16 @@ public class RobotMower : MonoBehaviour
     [Tooltip("Degrees per second for all rotations.")]
     public float turnSpeed    = 90f;
 
+    [Header("Audio")]
+    [Tooltip("Sound played when starting and finishing mowing.")]
+    public AudioClip startStopSound;
+    [Tooltip("Looping sound played while the mower is actively mowing.")]
+    public AudioClip mowingLoopSound;
+    [Tooltip("Main audio source for one-shot sounds (start/stop).")]
+    public AudioSource audioSource;
+    [Tooltip("Secondary audio source for looping mowing sound.")]
+    public AudioSource mowingAudioSource;
+
     [Header("Debug")]
     public bool drawGizmoBounds = true;
 
@@ -82,7 +102,36 @@ public class RobotMower : MonoBehaviour
     // ─────────────────────────────────────────
     void Start()
     {
+        // Set up audio sources if not assigned
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        ConfigureAudioSource(audioSource, false);
+
+        if (mowingAudioSource == null)
+        {
+            mowingAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+        ConfigureAudioSource(mowingAudioSource, true);
+        mowingAudioSource.clip = mowingLoopSound;
+        mowingAudioSource.volume = 0.5f; // 50% volume for mowing sound
+        mowingAudioSource.maxDistance = 8f; // Closer falloff distance
+
        // StartMowing();
+    }
+
+    /// <summary>
+    /// Configures an AudioSource for spatial 3D audio.
+    /// </summary>
+    void ConfigureAudioSource(AudioSource source, bool loop)
+    {
+        source.spatialBlend = 1f; // Full 3D spatial audio
+        source.loop = loop;
+        source.playOnAwake = false;
+        source.rolloffMode = AudioRolloffMode.Linear;
+        source.minDistance = 1f;
+        source.maxDistance = 20f;
     }
 
     public void StartMowing()
@@ -132,6 +181,12 @@ public class RobotMower : MonoBehaviour
         transform.position = startPosition;
         transform.rotation = MowRotation(moveDir);
 
+        // Play start sound
+        if (audioSource != null && startStopSound != null)
+        {
+            audioSource.PlayOneShot(startStopSound);
+        }
+
         state = State.Mowing;
     }
 
@@ -159,6 +214,12 @@ public class RobotMower : MonoBehaviour
     // ─────────────────────────────────────────
     void UpdateMowing()
     {
+        // Start mowing sound if not already playing
+        if (mowingAudioSource != null && !mowingAudioSource.isPlaying && mowingLoopSound != null)
+        {
+            mowingAudioSource.Play();
+        }
+
         Vector3 velocity = (mowAxis == MowAxis.X)
             ? new Vector3(moveDir, 0f, 0f)
             : new Vector3(0f, 0f, moveDir);
@@ -261,6 +322,12 @@ public class RobotMower : MonoBehaviour
     // ─────────────────────────────────────────
     void BeginReturnHome()
     {
+        // Stop mowing sound when returning home
+        if (mowingAudioSource != null && mowingAudioSource.isPlaying)
+        {
+            mowingAudioSource.Stop();
+        }
+
         Vector3 toHome = (startPosition - transform.position).normalized;
         if (toHome != Vector3.zero)
         {
@@ -316,10 +383,19 @@ public class RobotMower : MonoBehaviour
             state = State.Done;
             Debug.Log("RobotMower: finished — returned home.");
 
+            // Play completion sound
+            if (audioSource != null && startStopSound != null)
+            {
+                audioSource.PlayOneShot(startStopSound);
+            }
+
             if (cutMaskPainter != null)
             {
                 cutMaskPainter.CutAllGrass();
             }
+
+            // Notify listeners that mowing is complete
+            OnMowingComplete?.Invoke();
         }
     }
 

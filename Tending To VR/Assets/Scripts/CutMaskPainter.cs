@@ -18,16 +18,15 @@ public class CutMaskPainter : MonoBehaviour
     private float brushRadius;
     private Material  _paintMaterial;
     private Bounds    _lawnBounds;
+    private RenderTextureFormat _renderTextureFormat;
 
     void Awake()
     {
-        // Check if R8 is supported, otherwise fallback to ARGB32
-        RenderTextureFormat format = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.R8) 
-            ? RenderTextureFormat.R8 
-            : RenderTextureFormat.ARGB32;
+        // Use ARGB32 which is universally supported and avoids SRGB conversion issues
+        _renderTextureFormat = RenderTextureFormat.ARGB32;
 
         // Create the RenderTexture — starts fully black (no grass cut)
-        cutMask = new RenderTexture(resolution, resolution, 0, format, RenderTextureReadWrite.Linear);
+        cutMask = new RenderTexture(resolution, resolution, 0, _renderTextureFormat);
         cutMask.filterMode = FilterMode.Bilinear;
         cutMask.Create();
 
@@ -75,7 +74,7 @@ public class CutMaskPainter : MonoBehaviour
         _paintMaterial.SetFloat ("_BrushRadius", brushRadius);
 
         // Blit with a temporary render texture to avoid undefined behavior when reading/writing to the same texture
-        RenderTexture temp = RenderTexture.GetTemporary(cutMask.width, cutMask.height, 0, cutMask.format);
+        RenderTexture temp = RenderTexture.GetTemporary(cutMask.width, cutMask.height, 0, _renderTextureFormat);
         Graphics.Blit(cutMask, temp); // First safely copy the current mask state to temp without blending
         Graphics.Blit(temp, cutMask, _paintMaterial); // Then apply the brush to cutMask, using temp as the source
         RenderTexture.ReleaseTemporary(temp);

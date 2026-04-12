@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -13,8 +14,6 @@ using UnityEngine.XR.Interaction.Toolkit;
 ///    Bucket Parts
 ///      Lid             — the 'lid' child mesh GameObject
 ///      Scoop Root      — the '---scoop---' child Transform
-///      Bucket Fertiliser Target — the 'bucket fertiliser' child Transform (proximity centre for filling)
-///      Bucket Fill Radius       — how close the scoop must be to fill (default 0.2 m)
 ///
 ///    Scoop Parts
 ///      Scoop Fertiliser Mesh — the 'scoopfertiliser' child GameObject (starts hidden)
@@ -31,8 +30,6 @@ using UnityEngine.XR.Interaction.Toolkit;
 ///      Scoop Rotation Offset   — Z-axis tweak if the scoop faces the wrong way in hand
 ///
 ///    Pouring
-///      Pour Tilt Threshold   — how much the scoop must be tilted to pour (default 0.5 = ~45°)
-///      Min Pour Height       — minimum world Y position to pour (default 1.5, ensures above soil)
 ///      Sparkle Particles     — a ParticleSystem placed on/above the soil (looping sparkle)
 ///
 ///    Completion
@@ -43,15 +40,32 @@ using UnityEngine.XR.Interaction.Toolkit;
 ///      Target  → this FertiliserController component
 ///      Method  → FertiliserController.OnFertiliserSelected
 ///
+/// 4. Add a trigger collider to the scoop that can detect when it enters the flower bed zone.
+///    The flower bed must have a trigger collider tagged "FlowerBed" that extends upward
+///    in Y space to capture the scoop when positioned above the bed.
+///
+/// 5. Add the ScoopTriggerDetector script to the scoop GameObject and wire it to this controller.
+///
+/// 6. IMPORTANT: Add a Rigidbody component to the scoop (can be kinematic with Is Kinematic checked).
+///    Unity requires at least one object in a trigger collision to have a Rigidbody.
+///
 /// INTERACTION FLOW
 /// ================
-///   Ray + Select  →  Lid hides, scoop snaps to hand
-///   Scoop into bucket  →  scoopfertiliser mesh appears (filled)
-///   Hold scoop above soil (Y > 1.5) and tilt downward  →  pour particles play, mesh fades, sparkle on soil
+///   Ray + Select  →  Lid hides, scoop snaps to hand and auto-fills with fertiliser
+///   Move scoop into flower bed trigger zone and tilt upside down  →  pour particles play, mesh fades, sparkle on soil
 ///   Completion  →  sound plays, GameManager notified, everything resets
 /// </summary>
 public class FertiliserController : MonoBehaviour
 {
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fired when the fertilising task is complete.
+    /// </summary>
+    public event Action OnFertilisingComplete;
+
     // -------------------------------------------------------------------------
     // Inspector Fields
     // -------------------------------------------------------------------------
@@ -62,12 +76,6 @@ public class FertiliserController : MonoBehaviour
 
     [Tooltip("The '---scoop---' Transform — the whole scoop assembly.")]
     public Transform scoopRoot;
-
-    [Tooltip("The 'bucket fertiliser' child Transform — used as the proximity centre for filling.")]
-    public Transform bucketFertiliserTarget;
-
-    [Tooltip("How close (metres) the scoop must be to the bucket fertiliser to fill up.")]
-    public float bucketFillRadius = 0.2f;
 
     [Header("Scoop Parts")]
     [Tooltip("The 'scoopfertiliser' child GameObject — hidden until the scoop is filled.")]
@@ -94,15 +102,9 @@ public class FertiliserController : MonoBehaviour
     public float scoopRotationOffset = 0f;
 
     [Header("Pouring")]
-    [Tooltip("The scoop must be tilted forward/downward this much to trigger the pour. Lower = more tilt required. 0.0 = completely inverted, -0.3 = tilted forward ~70°, -0.5 = ~60° forward.")]
-    [Range(-1f, 0.5f)]
-    public float pourTiltThreshold = -0.3f;
-
-    [Tooltip("Minimum world Y position the scoop must be at to pour (ensures it's above the soil level).")]
-    public float minPourHeight = 1.5f;
-
-    [Tooltip("How long (seconds) the scoop must be held in pour position before pouring starts. Prevents accidental pours.")]
-    public float sustainedTiltDuration = 0.4f;
+    [Tooltip("How upside down the scoop must be to pour. -1.0 = completely upside down, -0.5 = 60° tilt, 0.0 = horizontal (90° tilt). Lower values = stricter requirement.")]
+    [Range(-1f, 0f)]
+    public float upsideDownThreshold = -0.7f;
 
     [Tooltip("Looping sparkle/shimmer ParticleSystem placed on the soil that plays after fertiliser is applied.")]
     public ParticleSystem sparkleParticles;
@@ -116,10 +118,8 @@ public class FertiliserController : MonoBehaviour
     // -------------------------------------------------------------------------
 
     private bool scoopEquipped        = false;
-    private bool scoopFilled          = false;
     private bool isPouringOrComplete  = false;
-
-    private float tiltTimer           = 0f;
+    private bool isInBedZone          = false;
 
     private Vector3    scoopOriginalLocalPos;
     private Quaternion scoopOriginalLocalRot;
@@ -147,46 +147,26 @@ public class FertiliserController : MonoBehaviour
     {
         if (!scoopEquipped || isPouringOrComplete) return;
 
-        if (!scoopFilled)
+        // Check if scoop is in flower bed zone and tilted upside down
+        if (isInBedZone)
         {
-            // Step 2: dip scoop into bucket fertiliser to fill it
-            if (bucketFertiliserTarget != null &&
-                Vector3.Distance(scoopRoot.position, bucketFertiliserTarget.position) < bucketFillRadius)
-            {
-                FillScoop();
-            }
-        }
-        else
-        {
-            // Step 3: tilt the filled scoop to pour
-            // Check if the scoop is tilted downward intentionally AND above the minimum height
+            // Check tilt: scoop is upside down when its up vector points downward (negative Y)
+            float tiltValue = scoopRoot.up.y;
+            bool isTiltedUpsideDown = tiltValue < upsideDownThreshold;
             
-            // More strict tilt check: scoop must be tilted forward/downward
-            // Check both up.y (should be negative or very small) AND forward.y (should be negative = pointing down)
-            bool isTiltedDown = scoopRoot.up.y < pourTiltThreshold && scoopRoot.forward.y < -0.2f;
-            bool isAboveSoil = scoopRoot.position.y >= minPourHeight;
+            // Debug logging every frame when in bed zone
+            Debug.Log($"Fertiliser: In bed zone. Tilt Y = {tiltValue:F3}, Threshold = {upsideDownThreshold:F3}, Upside down = {isTiltedUpsideDown}");
             
-            if (isTiltedDown && isAboveSoil)
+            if (isTiltedUpsideDown)
             {
-                // Accumulate time in pour position
-                tiltTimer += Time.deltaTime;
-                
-                // Only pour after sustained tilt
-                if (tiltTimer >= sustainedTiltDuration)
-                {
-                    StartCoroutine(PourAndComplete());
-                }
-            }
-            else
-            {
-                // Reset timer if not in pour position
-                tiltTimer = 0f;
+                Debug.Log("Fertiliser: POUR TRIGGERED!");
+                StartCoroutine(PourAndComplete());
             }
         }
     }
 
     // -------------------------------------------------------------------------
-    // Step 1 — Select: lid hides, scoop snaps to hand
+    // Step 1 — Select: lid hides, scoop snaps to hand and auto-fills
     // -------------------------------------------------------------------------
 
     /// <summary>
@@ -225,20 +205,49 @@ public class FertiliserController : MonoBehaviour
         }
 
         scoopEquipped = true;
-    }
 
-    // -------------------------------------------------------------------------
-    // Step 2 — Fill: scoop enters bucket proximity
-    // -------------------------------------------------------------------------
-
-    private void FillScoop()
-    {
-        scoopFilled = true;
+        // Auto-fill the scoop with fertiliser when equipped
         if (scoopFertiliserMesh != null) scoopFertiliserMesh.SetActive(true);
+        
+        Debug.Log("Fertiliser: Scoop equipped and filled");
     }
 
     // -------------------------------------------------------------------------
-    // Step 3 — Pour & Complete: scoop tilted downward
+    // Bed Zone Detection (called by ScoopTriggerDetector on the scoop)
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Called by ScoopTriggerDetector when the scoop enters a trigger collider.
+    /// The flower bed must have a trigger collider tagged "FlowerBed" that extends
+    /// upward in Y space to capture the scoop when positioned above the bed.
+    /// </summary>
+    public void OnScoopTriggerEnter(Collider other)
+    {
+        Debug.Log($"Fertiliser: OnScoopTriggerEnter with '{other.gameObject.name}' (tag: '{other.tag}')");
+        
+        if (other.CompareTag("FlowerBed"))
+        {
+            isInBedZone = true;
+            Debug.Log("Fertiliser: ENTERED flower bed zone!");
+        }
+    }
+
+    /// <summary>
+    /// Called by ScoopTriggerDetector when the scoop exits a trigger collider.
+    /// </summary>
+    public void OnScoopTriggerExit(Collider other)
+    {
+        Debug.Log($"Fertiliser: OnScoopTriggerExit with '{other.gameObject.name}' (tag: '{other.tag}')");
+        
+        if (other.CompareTag("FlowerBed"))
+        {
+            isInBedZone = false;
+            Debug.Log("Fertiliser: EXITED flower bed zone!");
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Step 2 — Pour & Complete: scoop tilted upside down in bed zone
     // -------------------------------------------------------------------------
 
     private IEnumerator PourAndComplete()
@@ -262,8 +271,8 @@ public class FertiliserController : MonoBehaviour
         // Play completion sound
         if (completionAudio != null) completionAudio.Play();
 
-        // Notify the stage system
-        if (GameManager.Instance != null) GameManager.Instance.ReportInteractionComplete();
+        // Notify listeners that fertilising is complete
+        OnFertilisingComplete?.Invoke();
 
         // Wait for the audio clip to finish before resetting the scene
         float waitTime = (completionAudio != null && completionAudio.clip != null)
@@ -301,8 +310,7 @@ public class FertiliserController : MonoBehaviour
         // Leave sparkleParticles running — they stay on the soil to show it's been fertilised
 
         scoopEquipped       = false;
-        scoopFilled         = false;
         isPouringOrComplete = false;
-        tiltTimer           = 0f;
+        isInBedZone         = false;
     }
 }

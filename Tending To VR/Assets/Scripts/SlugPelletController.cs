@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -8,6 +9,9 @@ public class SlugPelletController : MonoBehaviour
     public Transform sprayAnchor;       // Empty at the bottle mouth — pellets spawn here
     public GameObject blueCapsulePrefab;
     public AudioSource sprayAudioSource;
+
+    [Header("Effects")]
+    public ParticleSystem pelletParticles;  // Assign the particle system on the bottle mouth
 
     [Header("Spawn Settings")]
     public float spawnInterval = 0.1f;  // Seconds between each pellet spawn
@@ -111,17 +115,28 @@ public class SlugPelletController : MonoBehaviour
 
     public void ResetTool()
     {
-        if (handRayInteractor != null) handRayInteractor.enabled = true;
-        if (handLineVisual != null)    handLineVisual.enabled    = true;
-
         isEquipped = false;
-        ToggleSpray(false);
+
+        // Bug fix #2: force-stop audio regardless of minSprayDuration
+        isSpraying = false;
+        if (pelletParticles != null) pelletParticles.Stop();
+        if (sprayAudioSource != null) sprayAudioSource.Stop();
 
         transform.SetParent(originalParent);
         transform.localPosition = originalPos;
         transform.localRotation = originalRot;
 
         if (capModel != null) capModel.SetActive(capWasActive);
+
+        // Bug fix #3: wait one frame so XRIT clears selection state before re-enabling
+        StartCoroutine(RestoreInteractorNextFrame());
+    }
+
+    private IEnumerator RestoreInteractorNextFrame()
+    {
+        yield return null;  // wait one frame
+        if (handRayInteractor != null) handRayInteractor.enabled = true;
+        if (handLineVisual != null)    handLineVisual.enabled    = true;
     }
 
     public void ToggleSpray(bool active)
@@ -129,6 +144,12 @@ public class SlugPelletController : MonoBehaviour
         if (isSpraying == active) return;
 
         isSpraying = active;
+
+        if (pelletParticles != null)
+        {
+            if (active) pelletParticles.Play();
+            else        pelletParticles.Stop();
+        }
 
         if (sprayAudioSource != null)
         {

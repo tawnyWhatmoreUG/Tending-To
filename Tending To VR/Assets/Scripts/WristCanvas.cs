@@ -129,16 +129,22 @@ public class WristCanvas : MonoBehaviour
 
     private void OnStageChanged(Stage newStage)
     {
-        StageData data = GameManager.Instance?.GetStageData(newStage);
-        if (data == null) return;
-
-        // -1 means no scribble change on this stage.
-        if (data.wristCanvasScribbleIndex < 0) return;
-
-        // Find the entry whose stage matches the PREVIOUS stage —
-        // we mark off the task that was just completed, not the one starting.
-        // The completed stage is one step behind newStage.
+        // Calculate the completed stage (one step behind newStage).
+        // If we're at the first stage, there is no completed stage to mark.
+        if ((int)newStage == 0) return;
+        
         Stage completedStage = (Stage)((int)newStage - 1);
+        
+        // Get the COMPLETED stage's data (not the new stage's data).
+        // This ensures we check whether the completed stage should show a scribble,
+        // even if the new stage is a Broken stage with wristCanvasScribbleIndex = -1.
+        StageData completedData = GameManager.Instance?.GetStageData(completedStage);
+        if (completedData == null) return;
+
+        // -1 means no scribble for this completed stage.
+        if (completedData.wristCanvasScribbleIndex < 0) return;
+
+        // Reveal the scribble for the task that was just completed.
         RevealScribbleForStage(completedStage);
     }
 
