@@ -41,12 +41,29 @@ public class TeleportAnchorController : MonoBehaviour
              "Enabled when active, disabled after teleport.")]
     [SerializeField] private GameObject anchorVisual;
 
+    [Header("Audio")]
+    [Tooltip("Optional: AudioSource for 3D spatial sound when anchor is active. " +
+             "Will be auto-configured for 3D spatial audio if assigned.")]
+    [SerializeField] private AudioSource teleportAudioSource;
+
+    [Tooltip("Optional: Audio clip to play when the anchor is active. " +
+             "If left empty, will just control the AudioSource.")]
+    [SerializeField] private AudioClip teleportActiveSound;
+
+    [Tooltip("Should the teleport sound loop while the anchor is active?")]
+    [SerializeField] private bool loopSound = true;
+
+    [Tooltip("Duration in seconds for audio fade in/out transitions.")]
+    [SerializeField] private float fadeDuration = 1f;
+
     // -------------------------------------------------------------------------
     // Private refs
     // -------------------------------------------------------------------------
 
     private UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationAnchor _teleportationAnchor;
     private Collider _collider;
+    private Coroutine _audioFadeCoroutine;
+    private float _targetVolume = 0.5f; // Store the intended volume when fully faded in
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -59,6 +76,24 @@ public class TeleportAnchorController : MonoBehaviour
 
         // Hook into XRI's teleport event so we know when the player arrives.
         _teleportationAnchor.teleporting.AddListener(OnPlayerTeleported);
+
+        // Configure AudioSource for 3D spatial audio if assigned.
+        if (teleportAudioSource != null)
+        {
+            teleportAudioSource.spatialBlend = 1f; // Full 3D
+            _targetVolume = 0.5f; // Store the target volume
+            teleportAudioSource.volume = 0f; // Start at 0, will fade in
+            teleportAudioSource.loop = loopSound;
+            teleportAudioSource.playOnAwake = false;
+            teleportAudioSource.rolloffMode = AudioRolloffMode.Linear;
+            teleportAudioSource.minDistance = 1f;
+            teleportAudioSource.maxDistance = 20f;
+            
+            if (teleportActiveSound != null)
+            {
+                teleportAudioSource.clip = teleportActiveSound;
+            }
+        }
     }
 
     private void OnEnable()
@@ -81,13 +116,23 @@ public class TeleportAnchorController : MonoBehaviour
     // Stage Listener
     // -------------------------------------------------------------------------
 
-private void OnStageChanged(Stage newStage)
-{
-    bool isMyStage = newStage == myStage
-        || (hasSecondStage && newStage == mySecondStage);
+    private void OnStageChanged(Stage newStage)
+    {
+        bool isMyStage = newStage == myStage
+            || (hasSecondStage && newStage == mySecondStage);
 
-    SetAnchorActive(isMyStage);
-}
+        // Only activate if this is our stage AND the stage actually wants a teleporter.
+        if (isMyStage)
+        {
+            StageData data = GameManager.Instance?.GetStageData(newStage);
+            bool stageWantsTeleporter = data != null && data.hasTeleportAnchor;
+            SetAnchorActive(stageWantsTeleporter);
+        }
+        else
+        {
+            SetAnchorActive(false);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Teleport Handler
@@ -99,7 +144,9 @@ private void OnStageChanged(Stage newStage)
     /// </summary>
     private void OnPlayerTeleported(UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportingEventArgs args)
     {
-        Debug.Log($"[TeleportAnchorController] Player teleported to anchor: {myStage}");
+        // Determine which stage we're currently in (important for reused anchors).
+        Stage currentStage = GetCurrentActiveStage();
+        Debug.Log($"[TeleportAnchorController] Player teleported to anchor for stage: {currentStage}");
 
         // Immediately hide the glow and disable interaction so it
         // can't be triggered again this stage.
@@ -107,7 +154,25 @@ private void OnStageChanged(Stage newStage)
 
         // Tell the StageSequencer the player has arrived and
         // the interaction phase for this stage can begin.
-        StageSequencer.Instance?.OnPlayerArrivedAtAnchor(myStage);
+        StageSequencer.Instance?.OnPlayerArrivedAtAnchor(currentStage);
+    }
+
+    /// <summary>
+    /// Returns the stage this anchor is currently active for.
+    /// Checks if we're in the second stage first, otherwise returns the primary stage.
+    /// </summary>
+    private Stage GetCurrentActiveStage()
+    {
+        Stage currentStage = GameManager.Instance.CurrentStage;
+        
+        // If we have a second stage configured and we're currently in it, return that.
+        if (hasSecondStage && currentStage == mySecondStage)
+        {
+            return mySecondStage;
+        }
+        
+        // Otherwise return the primary stage.
+        return myStage;
     }
 
     // -------------------------------------------------------------------------
@@ -127,5 +192,82 @@ private void OnStageChanged(Stage newStage)
 
         // Enable/disable XRI interaction.
         _teleportationAnchor.enabled = active;
+
+        // Fade audio in or out.
+        if (teleportAudioSource != null)
+        {
+            // Stop any currently running fade coroutine.
+            if (_audioFadeCoroutine != null)
+            {
+                StopCoroutine(_audioFadeCoroutine);
+            }
+
+            if (active)
+            {
+                // Fade in the audio.
+                _audioFadeCoroutine = StartCoroutine(FadeAudioIn());
+            }
+            else
+            {
+                // Fade out the audio.
+                _audioFadeCoroutine = StartCoroutine(FadeAudioOut());
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Audio Fading
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Gradually increases audio volume from 0 to the target volume.
+    /// </summary>
+    private System.Collections.IEnumerator FadeAudioIn()
+    {
+        if (teleportAudioSource == null) yield break;
+
+        // Start playing if not already playing.
+        if (!teleportAudioSource.isPlaying)
+        {
+            teleportAudioSource.volume = 0f;
+            teleportAudioSource.Play();
+        }
+
+        float startVolume = teleportAudioSource.volume;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            teleportAudioSource.volume = Mathf.Lerp(startVolume, _targetVolume, elapsed / fadeDuration);
+            yield return null;
+        }
+
+        teleportAudioSource.volume = _targetVolume;
+    }
+
+    /// <summary>
+    /// Gradually decreases audio volume from current volume to 0, then stops playback.
+    /// </summary>
+    private System.Collections.IEnumerator FadeAudioOut()
+    {
+        if (teleportAudioSource == null) yield break;
+
+        float startVolume = teleportAudioSource.volume;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            teleportAudioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / fadeDuration);
+            yield return null;
+        }
+
+        teleportAudioSource.volume = 0f;
+        
+        if (teleportAudioSource.isPlaying)
+        {
+            teleportAudioSource.Stop();
+        }
     }
 }

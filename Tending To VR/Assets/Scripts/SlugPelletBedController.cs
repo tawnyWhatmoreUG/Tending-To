@@ -1,8 +1,14 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SlugPelletBedController : MonoBehaviour
 {
+    /// <summary>
+    /// Fired when this bed is complete (progress reaches 100%).
+    /// </summary>
+    public event Action OnBedComplete;
+
     [Header("References")]
     public Slider progressBar;
     public SlugPelletController slugPelletController;
@@ -61,5 +67,8 @@ public class SlugPelletBedController : MonoBehaviour
         progressBar.gameObject.SetActive(false);
         slugPelletController.ResetTool();
         progress = 0; // Reset for next time
+
+        // Notify listeners that this bed is complete
+        OnBedComplete?.Invoke();
     }
 }

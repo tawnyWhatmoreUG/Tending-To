@@ -82,11 +82,11 @@ public class StageSequencer : MonoBehaviour
         }
 
         // Start the poem verse for this stage.
-       // PoemPlayer.Instance?.PlayVerseForStage(stage);
+        PoemPlayer.Instance?.PlayVerseForStage(stage);
     }
 
     // -------------------------------------------------------------------------
-    // Stage Change — handles Broken stages (no anchor arrival, verse-only)
+    // Stage Change — Auto-plays poems for stages without teleport anchors
     // -------------------------------------------------------------------------
 
     private void OnStageChanged(Stage newStage)
@@ -94,11 +94,13 @@ public class StageSequencer : MonoBehaviour
         StageData data = GameManager.Instance.GetStageData(newStage);
         if (data == null) return;
 
-        // Broken stages have no interactable and no anchor click —
-        // the poem starts automatically when the stage begins.
-        if (!data.requiresInteraction && data.poemVerse != null)
+        // Special case: stages without teleport anchors (e.g., BrokenWindowBox)
+        // play their poem immediately when the stage begins, since there's
+        // no anchor to teleport to.
+        if (!data.hasTeleportAnchor && data.poemVerse != null)
         {
-           // PoemPlayer.Instance?.PlayVerseForStage(newStage);
+            Debug.Log($"[StageSequencer] Auto-playing poem for non-teleport stage: {newStage}");
+            PoemPlayer.Instance?.PlayVerseForStage(newStage);
         }
     }
 

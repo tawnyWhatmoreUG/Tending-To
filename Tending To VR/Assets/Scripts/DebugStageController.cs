@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// EDITOR ONLY — stripped from builds entirely.
@@ -57,38 +58,42 @@ public class DebugStageController : MonoBehaviour
     {
         if (!enableDebugScript) return;
 
-        if (!Input.GetKey(KeyCode.LeftShift)) return;
+        // Check if keyboard is available and left shift is pressed
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null || !keyboard.leftShiftKey.isPressed) return;
 
         // Toggle panel
-        if (Input.GetKeyDown(KeyCode.D))
+        if (keyboard.dKey.wasPressedThisFrame)
         {
             _showPanel = !_showPanel;
             return;
         }
 
         // Advance one stage
-        if (Input.GetKeyDown(KeyCode.RightBracket))
+        if (keyboard.rightBracketKey.wasPressedThisFrame)
         {
             StepStage(1);
             return;
         }
 
         // Go back one stage
-        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        if (keyboard.leftBracketKey.wasPressedThisFrame)
         {
             StepStage(-1);
             return;
         }
 
         // Jump to stage by index via number keys (0-9)
-        for (int i = 0; i <= 9; i++)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
-            {
-                JumpToIndex(i);
-                return;
-            }
-        }
+        if (keyboard.digit0Key.wasPressedThisFrame || keyboard.numpad0Key.wasPressedThisFrame) { JumpToIndex(0); return; }
+        if (keyboard.digit1Key.wasPressedThisFrame || keyboard.numpad1Key.wasPressedThisFrame) { JumpToIndex(1); return; }
+        if (keyboard.digit2Key.wasPressedThisFrame || keyboard.numpad2Key.wasPressedThisFrame) { JumpToIndex(2); return; }
+        if (keyboard.digit3Key.wasPressedThisFrame || keyboard.numpad3Key.wasPressedThisFrame) { JumpToIndex(3); return; }
+        if (keyboard.digit4Key.wasPressedThisFrame || keyboard.numpad4Key.wasPressedThisFrame) { JumpToIndex(4); return; }
+        if (keyboard.digit5Key.wasPressedThisFrame || keyboard.numpad5Key.wasPressedThisFrame) { JumpToIndex(5); return; }
+        if (keyboard.digit6Key.wasPressedThisFrame || keyboard.numpad6Key.wasPressedThisFrame) { JumpToIndex(6); return; }
+        if (keyboard.digit7Key.wasPressedThisFrame || keyboard.numpad7Key.wasPressedThisFrame) { JumpToIndex(7); return; }
+        if (keyboard.digit8Key.wasPressedThisFrame || keyboard.numpad8Key.wasPressedThisFrame) { JumpToIndex(8); return; }
+        if (keyboard.digit9Key.wasPressedThisFrame || keyboard.numpad9Key.wasPressedThisFrame) { JumpToIndex(9); return; }
     }
 
     // -------------------------------------------------------------------------

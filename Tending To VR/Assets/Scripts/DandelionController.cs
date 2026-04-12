@@ -1,8 +1,14 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DandelionController : MonoBehaviour
 {
+    /// <summary>
+    /// Fired when all dandelions are cleared.
+    /// </summary>
+    public event Action OnPathCleared;
+
     public Slider progressBar;
     public MeshRenderer[] dandelionRenderers;
     public WeedkillerController weedkillScript;
@@ -53,5 +59,8 @@ public class DandelionController : MonoBehaviour
         progressBar.gameObject.SetActive(false);
         weedkillScript.ResetTool();
         progress = 0; // Reset for next time if needed
+
+        // Notify listeners that the path is cleared
+        OnPathCleared?.Invoke();
     }
 }

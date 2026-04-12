@@ -1392,10 +1392,9 @@ MonoBehaviour:
   hasSecondStage: 1
   mySecondStage: 8
   anchorVisual: {fileID: 600940542}
-  teleportAudioSource: {fileID: 149599210}
-  teleportActiveSound: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  teleportAudioSource: {fileID: 0}
+  teleportActiveSound: {fileID: 0}
   loopSound: 1
-  fadeDuration: 1
 --- !u!82 &149599210
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1407,11 +1406,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_Resource: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -3097,7 +3096,7 @@ Transform:
   m_GameObject: {fileID: 388126029}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.17, z: 0.2}
+  m_LocalPosition: {x: -0.22, y: 0.17, z: -1.33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3127,8 +3126,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.5, y: 2.0829797, z: 1.4369112}
-  m_Center: {x: -2.2499995, y: 1.4585736, z: 0.7184783}
+  m_Size: {x: 1.5, y: 2.2979112, z: 1.4369112}
+  m_Center: {x: -2.2499995, y: 1.351078, z: 0.7184717}
 --- !u!4 &388910727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6879113916850374917, guid: de128f7f1e3cd4dac8e94f041dec7c22, type: 3}
@@ -3752,10 +3751,9 @@ MonoBehaviour:
   hasSecondStage: 1
   mySecondStage: 7
   anchorVisual: {fileID: 1714281467}
-  teleportAudioSource: {fileID: 488034518}
-  teleportActiveSound: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  teleportAudioSource: {fileID: 0}
+  teleportActiveSound: {fileID: 0}
   loopSound: 1
-  fadeDuration: 1
 --- !u!82 &488034518
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3767,11 +3765,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_Resource: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -9962,6 +9960,7 @@ GameObject:
   - component: {fileID: 600505221}
   - component: {fileID: 600505220}
   - component: {fileID: 600505224}
+  - component: {fileID: 600505226}
   - component: {fileID: 600505225}
   m_Layer: 0
   m_Name: TeleAnchorLawnmower
@@ -10165,11 +10164,50 @@ MonoBehaviour:
   hasSecondStage: 1
   mySecondStage: 10
   anchorVisual: {fileID: 1022268855}
-  teleportAudioSource: {fileID: 600505225}
-  teleportActiveSound: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  teleportAudioSource: {fileID: 0}
+  teleportActiveSound: {fileID: 0}
   loopSound: 1
-  fadeDuration: 1
---- !u!82 &600505225
+--- !u!114 &600505225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600505218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 186056f485a2493b80cc81571ac8cd9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Audio.AudioAffordanceReceiver
+  m_AffordanceStateProvider: {fileID: 0}
+  m_AffordanceThemeDatum:
+    m_UseConstant: 0
+    m_ConstantValue:
+      m_List:
+      - stateName: disabled
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+      - stateName: idle
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+      - stateName: hovered
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+      - stateName: hoveredPriority
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+      - stateName: selected
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+      - stateName: activated
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+      - stateName: focused
+        stateEntered: {fileID: 0}
+        stateExited: {fileID: 0}
+    m_Variable: {fileID: 0}
+  m_AudioSource: {fileID: 600505226}
+--- !u!82 &600505226
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10180,11 +10218,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_Resource: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -10996,7 +11034,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919260410}
         m_TargetAssemblyTypeName: WindowBoxPlantingController, Assembly-CSharp
-        m_MethodName: OnPlantSelected
+        m_MethodName: OnPlant3Selected
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12470,10 +12508,9 @@ MonoBehaviour:
   hasSecondStage: 1
   mySecondStage: 6
   anchorVisual: {fileID: 338198757}
-  teleportAudioSource: {fileID: 888792877}
-  teleportActiveSound: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  teleportAudioSource: {fileID: 0}
+  teleportActiveSound: {fileID: 0}
   loopSound: 1
-  fadeDuration: 1
 --- !u!82 &888792877
 AudioSource:
   m_ObjectHideFlags: 0
@@ -12485,11 +12522,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_Resource: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -12612,6 +12649,7 @@ Transform:
   - {fileID: 1096236633}
   - {fileID: 746098425}
   - {fileID: 1850241062}
+  - {fileID: 2139621320}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &911362684
@@ -12763,10 +12801,10 @@ MonoBehaviour:
     dropPosition: {fileID: 751186490}
   windowBoxTransform: {fileID: 1096236633}
   plantAnchors:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  windowBoxSillPosition: {fileID: 1096236633}
+  - {fileID: 2066831641}
+  - {fileID: 388126030}
+  - {fileID: 1992637361}
+  windowBoxSillPosition: {fileID: 2139621320}
   moveDuration: 1.5
   potDropDuration: 0.8
   compostBagClosed: {fileID: 569238035}
@@ -12786,7 +12824,8 @@ MonoBehaviour:
       m_SingletonActionBindings: []
       m_Flags: 0
     m_Reference: {fileID: 383181498}
-  completionAudio: {fileID: 1096236634}
+  plantRotationOffset: 0
+  completionAudio: {fileID: 0}
 --- !u!4 &922114417 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4154390912001580870, guid: 88e172146c62c4a62baa9fcdacdd80b1, type: 3}
@@ -13419,7 +13458,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919260410}
         m_TargetAssemblyTypeName: WindowBoxPlantingController, Assembly-CSharp
-        m_MethodName: OnPlantSelected
+        m_MethodName: OnPlant1Selected
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13928,8 +13967,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 75552d34d8d4fc540adf88dad17c1a42, type: 3}
-  m_PlayOnAwake: 0
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -15717,10 +15756,10 @@ MonoBehaviour:
   rowSpacing: 0.25
   facingOffset: -90
   turnSpeed: 30
-  startStopSound: {fileID: 8300000, guid: 7cd8af53a16de6e47af99649b237b753, type: 3}
+  startStopSound: {fileID: 0}
   mowingLoopSound: {fileID: 8300000, guid: 87ca6448c8bd23449b585e6238b794bb, type: 3}
   audioSource: {fileID: 1312027299}
-  mowingAudioSource: {fileID: 1312027299}
+  mowingAudioSource: {fileID: 0}
   drawGizmoBounds: 1
 --- !u!4 &1312027296 stripped
 Transform:
@@ -15845,9 +15884,9 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 75552d34d8d4fc540adf88dad17c1a42, type: 3}
+  m_Resource: {fileID: 8300000, guid: 7cd8af53a16de6e47af99649b237b753, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -28948,10 +28987,9 @@ MonoBehaviour:
   hasSecondStage: 1
   mySecondStage: 9
   anchorVisual: {fileID: 781589450}
-  teleportAudioSource: {fileID: 1941880919}
-  teleportActiveSound: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  teleportAudioSource: {fileID: 0}
+  teleportActiveSound: {fileID: 0}
   loopSound: 1
-  fadeDuration: 1
 --- !u!82 &1941880919
 AudioSource:
   m_ObjectHideFlags: 0
@@ -28963,11 +29001,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_Resource: {fileID: 8300000, guid: e75f91d3862550b40b79ca7722201936, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -29276,7 +29314,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919260410}
         m_TargetAssemblyTypeName: WindowBoxPlantingController, Assembly-CSharp
-        m_MethodName: OnPlantSelected
+        m_MethodName: OnPlant2Selected
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29403,7 +29441,7 @@ Transform:
   m_GameObject: {fileID: 1992637360}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.17, z: 1.62}
+  m_LocalPosition: {x: -0.27, y: 0.17, z: 1.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29999,7 +30037,7 @@ Transform:
   m_GameObject: {fileID: 2066831640}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.17, z: -1.36}
+  m_LocalPosition: {x: -0.25, y: 0.17, z: -3.49}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -30126,6 +30164,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   m_ActionId: a6c7231d-c55d-4dd4-9e87-877bb5522ef5
+--- !u!1 &2139621319
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2139621320}
+  m_Layer: 0
+  m_Name: WindowCillAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2139621320
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139621319}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.101, y: 0.801, z: -2.992}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 900918196}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2142148649
 GameObject:
   m_ObjectHideFlags: 0
