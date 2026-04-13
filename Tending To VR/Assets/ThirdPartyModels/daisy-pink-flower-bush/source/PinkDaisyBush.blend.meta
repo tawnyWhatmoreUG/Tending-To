@@ -1,9 +1,29 @@
 fileFormatVersion: 2
-guid: da1776a82b35bcb468a92e4e27bbd06e
+guid: aa03f503481074191a2aa9421f4c0c8a
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Leaf_2_Mat.002
+    second: {fileID: 2100000, guid: ccbf6074107684b4aa4b1cff8ca0b80d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pink_Cap_Base_Mat
+    second: {fileID: 2100000, guid: f64bc89398dc44182a22d688f501a63c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pink_Petal_Mat
+    second: {fileID: 2100000, guid: 3b0c7b9ee713a414f9ace3d70957615a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stem_2_Mat.002
+    second: {fileID: 2100000, guid: c73851205319f431eba156dacd4ceb29, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

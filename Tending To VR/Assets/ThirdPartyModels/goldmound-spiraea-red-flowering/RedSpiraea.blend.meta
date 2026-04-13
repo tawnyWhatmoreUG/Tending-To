@@ -1,9 +1,24 @@
 fileFormatVersion: 2
-guid: 4f6b34755b53f794899b030a198b2876
+guid: e1fbee0044bcb4ac3a0bfeabf98fad2b
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: barg02_Mat
+    second: {fileID: 2100000, guid: 39daba8585c30417288716a47bd62515, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: flovers02_Mat
+    second: {fileID: 2100000, guid: 8e3df41ad00e64ee782d00cadf79f7b0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: leaf02_Mat
+    second: {fileID: 2100000, guid: c031e4c7fcd834042a7c9d5d5cbb6013, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
