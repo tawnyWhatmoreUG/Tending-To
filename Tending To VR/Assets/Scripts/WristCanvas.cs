@@ -59,6 +59,13 @@ public class WristCanvas : MonoBehaviour
     [Tooltip("One entry per task stage. Order does not matter — matched by Stage enum.")]
     [SerializeField] private ScribbleEntry[] scribbleEntries;
 
+    [Header("Audio")]
+    [Tooltip("Audio clip to play when a scribble is added to the wrist menu.")]
+    [SerializeField] private AudioClip scribbleSound;
+
+    [Tooltip("Volume at which to play the scribble sound (0-1).")]
+    [SerializeField] private float scribbleSoundVolume = 1.0f;
+
     [System.Serializable]
     public struct ScribbleEntry
     {
@@ -68,6 +75,12 @@ public class WristCanvas : MonoBehaviour
         [Tooltip("The UI Image component positioned over the task text label.")]
         public Image scribbleImage;
     }
+
+    // -------------------------------------------------------------------------
+    // Private Refs
+    // -------------------------------------------------------------------------
+
+    private AudioSource _audioSource;
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -81,6 +94,8 @@ public class WristCanvas : MonoBehaviour
             return;
         }
         Instance = this;
+
+        _audioSource = GetComponent<AudioSource>();
 
         // Hide the canvas at start — shown when note is picked up in PendingToDo.
         if (wristMenuRoot != null)
@@ -162,6 +177,7 @@ public class WristCanvas : MonoBehaviour
                 {
                     entry.scribbleImage.enabled = true;
                     Debug.Log($"[WristCanvas] Scribble revealed for stage: {completedStage}");
+                    PlayScribbleSound();
                 }
                 else
                 {
@@ -172,6 +188,12 @@ public class WristCanvas : MonoBehaviour
         }
 
         Debug.LogWarning($"[WristCanvas] No scribble entry found for completed stage: {completedStage}");
+    }
+
+    private void PlayScribbleSound()
+    {
+        if (scribbleSound == null || _audioSource == null) return;
+        _audioSource.PlayOneShot(scribbleSound, scribbleSoundVolume);
     }
 
 #if UNITY_EDITOR

@@ -58,6 +58,9 @@ public class AudioManager : MonoBehaviour
     // Tracks the target volume for each layer so concurrent fades don't conflict.
     private float[] _targetVolumes;
     private Coroutine[] _fadeCoroutines;
+    
+    // Tracks which layers have been permanently faded out and should never return to active.
+    private bool[] _permanentlyFadedOut;
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -111,13 +114,14 @@ public class AudioManager : MonoBehaviour
 
     /// <summary>
     /// Fades out a specific layer by index. Safe to call if already faded.
+    /// Once faded out, the layer will never return to active state.
     /// </summary>
     public void FadeOutLayer(int index)
     {
         if (!IsValidIndex(index)) return;
-        if (_targetVolumes[index] <= 0f)
+        if (_permanentlyFadedOut[index])
         {
-            Log($"Layer {index} is already faded out — skipping.");
+            Log($"Layer {index} is already permanently faded out — skipping.");
             return;
         }
 
@@ -127,11 +131,13 @@ public class AudioManager : MonoBehaviour
             StopCoroutine(_fadeCoroutines[index]);
 
         _targetVolumes[index] = 0f;
+        _permanentlyFadedOut[index] = true;
         _fadeCoroutines[index] = StartCoroutine(FadeLayer(index, 0f, fadeOutDuration));
     }
 
     /// <summary>
     /// Immediately silences all layers. Used for hard resets.
+    /// Marks all layers as permanently faded out.
     /// </summary>
     public void SilenceAll()
     {
@@ -141,6 +147,7 @@ public class AudioManager : MonoBehaviour
                 StopCoroutine(_fadeCoroutines[i]);
 
             _targetVolumes[i] = 0f;
+            _permanentlyFadedOut[i] = true;
             soundscapeLayers[i].volume = 0f;
         }
     }
@@ -148,6 +155,7 @@ public class AudioManager : MonoBehaviour
     /// <summary>
     /// Restores all layers to full volume and restarts playback.
     /// Useful for debug resets when jumping back to early stages.
+    /// Clears the permanent fade-out tracking so layers can be reactivated.
     /// </summary>
     public void RestoreAll()
     {
@@ -157,6 +165,7 @@ public class AudioManager : MonoBehaviour
                 StopCoroutine(_fadeCoroutines[i]);
 
             _targetVolumes[i] = 1f;
+            _permanentlyFadedOut[i] = false;
             soundscapeLayers[i].volume = 1f;
 
             if (!soundscapeLayers[i].isPlaying)
@@ -180,6 +189,7 @@ public class AudioManager : MonoBehaviour
 
         _targetVolumes = new float[soundscapeLayers.Length];
         _fadeCoroutines = new Coroutine[soundscapeLayers.Length];
+        _permanentlyFadedOut = new bool[soundscapeLayers.Length];
 
         for (int i = 0; i < soundscapeLayers.Length; i++)
         {
@@ -194,16 +204,49 @@ public class AudioManager : MonoBehaviour
             soundscapeLayers[i].spatialBlend = 0f; // 2D ambient
             soundscapeLayers[i].volume = 1f;
             _targetVolumes[i] = 1f;
+            _permanentlyFadedOut[i] = false;
         }
     }
 
     private void StartAllLayers()
     {
-        if (soundscapeLayers == null) return;
-
-        foreach (var source in soundscapeLayers)
+        if (soundscapeLayers == null)
         {
-            if (source != null && !source.isPlaying)
+            Debug.LogError("[AudioManager] StartAllLayers: soundscapeLayers array is NULL. Nothing will play.");
+            return;
+        }
+
+        if (soundscapeLayers.Length == 0)
+        {
+            Debug.LogError("[AudioManager] StartAllLayers: soundscapeLayers array is EMPTY. Assign AudioSources in Inspector.");
+            return;
+        }
+
+        // Check for AudioListener in scene — missing or duplicate kills all audio.
+        var listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (listeners.Length == 0)
+            Debug.LogError("[AudioManager] No AudioListener found in scene. All audio will be silent.");
+        else if (listeners.Length > 1)
+            Debug.LogWarning($"[AudioManager] {listeners.Length} AudioListeners found. Unity will disable all but one — audio may be silent. Remove duplicate AudioListeners.");
+
+        for (int i = 0; i < soundscapeLayers.Length; i++)
+        {
+            // Skip layers that have been permanently faded out.
+            if (_permanentlyFadedOut[i])
+                continue;
+
+            var source = soundscapeLayers[i];
+            if (source == null)
+            {
+                Debug.LogError($"[AudioManager] Layer {i} is null.");
+                continue;
+            }
+            if (source.clip == null)
+            {
+                Debug.LogError($"[AudioManager] Layer {i} ({source.name}) has no AudioClip assigned. It will be silent.");
+                continue;
+            }
+            if (!source.isPlaying)
                 source.Play();
         }
 

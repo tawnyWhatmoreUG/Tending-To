@@ -85,7 +85,7 @@ public class FertiliserController : MonoBehaviour
     public ParticleSystem pourParticles;
 
     [Tooltip("Total duration (seconds) of the pour animation before the task completes.")]
-    public float pourDuration = 1.5f;
+    public float pourDuration = 1.0f;
 
     [Header("VR Hand")]
     public UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor handRayInteractor;

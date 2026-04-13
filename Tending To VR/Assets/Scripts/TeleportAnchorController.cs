@@ -87,7 +87,7 @@ public class TeleportAnchorController : MonoBehaviour
             teleportAudioSource.playOnAwake = false;
             teleportAudioSource.rolloffMode = AudioRolloffMode.Linear;
             teleportAudioSource.minDistance = 1f;
-            teleportAudioSource.maxDistance = 20f;
+            teleportAudioSource.maxDistance = 3f;
             
             if (teleportActiveSound != null)
             {
@@ -226,23 +226,26 @@ public class TeleportAnchorController : MonoBehaviour
     {
         if (teleportAudioSource == null) yield break;
 
+        // Ensure volume starts at 0 before playing.
+        teleportAudioSource.volume = 0f;
+
         // Start playing if not already playing.
         if (!teleportAudioSource.isPlaying)
         {
-            teleportAudioSource.volume = 0f;
             teleportAudioSource.Play();
         }
 
-        float startVolume = teleportAudioSource.volume;
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
-            teleportAudioSource.volume = Mathf.Lerp(startVolume, _targetVolume, elapsed / fadeDuration);
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+            teleportAudioSource.volume = Mathf.Lerp(0f, _targetVolume, t);
             yield return null;
         }
 
+        // Ensure final volume is set to target.
         teleportAudioSource.volume = _targetVolume;
     }
 
@@ -259,10 +262,12 @@ public class TeleportAnchorController : MonoBehaviour
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
-            teleportAudioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / fadeDuration);
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+            teleportAudioSource.volume = Mathf.Lerp(startVolume, 0f, t);
             yield return null;
         }
 
+        // Ensure final volume is 0 and stop playback.
         teleportAudioSource.volume = 0f;
         
         if (teleportAudioSource.isPlaying)

@@ -39,6 +39,13 @@ public class NoteOnTable : MonoBehaviour
              "which is safer if other scripts hold a reference to this GO.")]
     [SerializeField] private bool deactivateOnPickup = true;
 
+    [Header("Audio")]
+    [Tooltip("Audio clip to play when the note is picked up.")]
+    [SerializeField] private AudioClip pickupSound;
+
+    [Tooltip("Volume at which to play the pickup sound (0-1).")]
+    [SerializeField] private float pickupSoundVolume = 1.0f;
+
     [Header("Debug")]
     [SerializeField] private bool verboseLogging = true;
 
@@ -48,6 +55,7 @@ public class NoteOnTable : MonoBehaviour
 
     private UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable _interactable;
     private Collider _collider;
+    private AudioSource _audioSource;
     private bool _hasBeenPickedUp = false;
 
     // -------------------------------------------------------------------------
@@ -58,6 +66,7 @@ public class NoteOnTable : MonoBehaviour
     {
         _interactable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
         _collider = GetComponent<Collider>();
+        _audioSource = GetComponent<AudioSource>();
 
         if (noteRenderer == null)
             noteRenderer = GetComponent<Renderer>();
@@ -125,6 +134,9 @@ public class NoteOnTable : MonoBehaviour
         Log("Note picked up.");
         _hasBeenPickedUp = true;
 
+        // Play pickup sound.
+        PlayPickupSound();
+
         // 1. Reveal the wrist canvas.
         WristCanvas.Instance?.ShowCanvas();
 
@@ -150,6 +162,24 @@ public class NoteOnTable : MonoBehaviour
             if (noteRenderer != null) noteRenderer.enabled = false;
             if (_collider != null) _collider.enabled = false;
             if (_interactable != null) _interactable.enabled = false;
+        }
+    }
+
+    private void PlayPickupSound()
+    {
+        if (pickupSound == null)
+        {
+            Log("Pickup sound not assigned.");
+            return;
+        }
+
+        if (_audioSource != null)
+        {
+            _audioSource.PlayOneShot(pickupSound, pickupSoundVolume);
+        }
+        else
+        {
+            Log("No AudioSource component found. Assign one to play sound.");
         }
     }
 
