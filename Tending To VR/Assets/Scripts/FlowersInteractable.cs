@@ -29,6 +29,9 @@ public class FlowersInteractable : BaseStageInteractable
         
         if (fertiliserController != null)
         {
+            // Subscribe to grab event (when bucket is grabbed) to signal interaction start
+            fertiliserController.OnFertiliserGrabbed += OnFertiliserGrabbed;
+            
             // Subscribe to completion event
             fertiliserController.OnFertilisingComplete += OnFlowersFed;
         }
@@ -44,8 +47,15 @@ public class FlowersInteractable : BaseStageInteractable
         
         if (fertiliserController != null)
         {
+            fertiliserController.OnFertiliserGrabbed -= OnFertiliserGrabbed;
             fertiliserController.OnFertilisingComplete -= OnFlowersFed;
         }
+    }
+
+    private void OnFertiliserGrabbed()
+    {
+        Debug.Log("[FlowersInteractable] Fertiliser grabbed! Signaling interaction start.");
+        SignalInteractionStarted();
     }
 
     private void OnFlowersFed()
@@ -58,9 +68,10 @@ public class FlowersInteractable : BaseStageInteractable
 
     private void OnDestroy()
     {
-        // Clean up event subscription
+        // Clean up event subscriptions
         if (fertiliserController != null)
         {
+            fertiliserController.OnFertiliserGrabbed -= OnFertiliserGrabbed;
             fertiliserController.OnFertilisingComplete -= OnFlowersFed;
         }
     }

@@ -62,6 +62,11 @@ public class FertiliserController : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
+    /// Fired when the player grabs/selects the fertiliser bucket.
+    /// </summary>
+    public event System.Action OnFertiliserGrabbed;
+
+    /// <summary>
     /// Fired when the fertilising task is complete.
     /// </summary>
     public event Action OnFertilisingComplete;
@@ -175,6 +180,9 @@ public class FertiliserController : MonoBehaviour
     /// </summary>
     public void OnFertiliserSelected(SelectEnterEventArgs args)
     {
+        // Notify listeners that fertiliser has been grabbed
+        OnFertiliserGrabbed?.Invoke();
+
         if (scoopEquipped || isPouringOrComplete) return;
 
         // Hide the bucket lid

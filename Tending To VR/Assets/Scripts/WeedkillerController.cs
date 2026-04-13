@@ -4,6 +4,19 @@ using UnityEngine.InputSystem; // ADD THIS
 
 public class WeedkillerController : MonoBehaviour
 {
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fired when the weedkiller nozzle is picked up/selected.
+    /// </summary>
+    public event System.Action OnNozzleSelected;
+
+    // -------------------------------------------------------------------------
+    // Inspector References
+    // -------------------------------------------------------------------------
+
     [Header("References")]
     public GameObject containerAndHose;
     public Transform nozzleVisuals;
@@ -58,6 +71,9 @@ public class WeedkillerController : MonoBehaviour
     // Assign this to 'Select Entered' in the XR Simple Interactable
     public void PickupNozzle(SelectEnterEventArgs args) {
         if (isEquipped) return;
+
+        // Notify listeners that nozzle has been selected/grabbed
+        OnNozzleSelected?.Invoke();
 
         // Disable Ray Visuals
         if (handRayInteractor != null) handRayInteractor.enabled = false;

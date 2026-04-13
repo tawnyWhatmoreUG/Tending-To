@@ -55,11 +55,29 @@ public class StageSequencer : MonoBehaviour
     private void OnEnable()
     {
         GameManager.OnStageChanged += OnStageChanged;
+        
+        // Subscribe to interaction start events from all interactables
+        foreach (var mapping in interactableMappings)
+        {
+            if (mapping.interactable != null)
+            {
+                mapping.interactable.OnInteractionStarted += OnInteractionStarted;
+            }
+        }
     }
 
     private void OnDisable()
     {
         GameManager.OnStageChanged -= OnStageChanged;
+        
+        // Unsubscribe from interaction start events
+        foreach (var mapping in interactableMappings)
+        {
+            if (mapping.interactable != null)
+            {
+                mapping.interactable.OnInteractionStarted -= OnInteractionStarted;
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -68,7 +86,8 @@ public class StageSequencer : MonoBehaviour
 
     /// <summary>
     /// Called by TeleportAnchorController when the player arrives at an anchor.
-    /// Activates the interactable for that stage and starts the poem.
+    /// Activates the interactable for that stage.
+    /// Poem playback now occurs when the player actually begins interacting (OnInteractionStarted).
     /// </summary>
     public void OnPlayerArrivedAtAnchor(Stage stage)
     {
@@ -79,10 +98,11 @@ public class StageSequencer : MonoBehaviour
         if (interactable != null)
         {
             interactable.Activate();
+        } else { 
+            // No interactable for this stage — trigger poem playback immediately since there's no interaction to wait for.
+            Debug.Log($"[StageSequencer] No interactable for stage: {stage}, auto-playing poem.");
+            PoemPlayer.Instance?.PlayVerseForStage(stage);
         }
-
-        // Start the poem verse for this stage.
-        PoemPlayer.Instance?.PlayVerseForStage(stage);
 
         BrokenSceneController.Instance?.OnPlayerArrivedAtStage(stage);
     }
@@ -104,6 +124,18 @@ public class StageSequencer : MonoBehaviour
             Debug.Log($"[StageSequencer] Auto-playing poem for non-teleport stage: {newStage}");
             PoemPlayer.Instance?.PlayVerseForStage(newStage);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Interaction Start — Plays poem when player begins interacting
+    // -------------------------------------------------------------------------
+
+    private void OnInteractionStarted(Stage stage)
+    {
+        Debug.Log($"[StageSequencer] Interaction started for stage: {stage}");
+        
+        // Play the verse for this stage when actual interaction begins
+        PoemPlayer.Instance?.PlayVerseForStage(stage);
     }
 
     // -------------------------------------------------------------------------

@@ -31,6 +31,13 @@ public enum Stage
 ///     when an audio verse finishes playing.
 ///   - Call GameManager.Instance.AdvanceStageDirect() only from PendingToDo
 ///     (the note pickup), which bypasses the dual-signal system.
+///
+/// SOUNDSCAPE FADE TIMING:
+///   AudioManager no longer listens to OnStageChanged directly.
+///   Instead, GameManager calls AudioManager.FadeOutLayer() at the moment
+///   the interaction is confirmed complete for the current stage — before
+///   the stage advances. This ensures the fade reflects task completion
+///   rather than task start.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -114,6 +121,10 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Called by the interactable system when the player completes the
     /// physical task for the current action stage.
+    ///
+    /// This is the trigger point for soundscape layer removal — the layer
+    /// defined in the current StageData is faded out here, at the moment
+    /// the player finishes the task, before the stage advances.
     /// </summary>
     public void ReportInteractionComplete()
     {
@@ -125,6 +136,12 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"[GameManager] Interaction complete for stage: {CurrentStage}");
         _interactionComplete = true;
+
+        // Fade out the soundscape layer associated with this stage now that
+        // the interaction is done. AudioManager handles the fade gracefully
+        // if the layer is already gone or the index is -1.
+        TriggerSoundscapeFadeForCurrentStage();
+
         TryAdvanceStage();
     }
 
@@ -157,6 +174,24 @@ public class GameManager : MonoBehaviour
     // -------------------------------------------------------------------------
     // Internal
     // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Reads the current stage's StageData and tells AudioManager to fade
+    /// out the associated soundscape layer. Called exactly once per stage,
+    /// at the moment the interaction is confirmed complete.
+    /// </summary>
+    private void TriggerSoundscapeFadeForCurrentStage()
+    {
+        StageData data = CurrentStageData;
+        if (data == null) return;
+
+        if (data.soundscapeLayerToRemove >= 0)
+        {
+            Debug.Log($"[GameManager] Triggering soundscape fade for layer {data.soundscapeLayerToRemove} " +
+                      $"(stage: {CurrentStage})");
+            AudioManager.Instance?.FadeOutLayer(data.soundscapeLayerToRemove);
+        }
+    }
 
     /// <summary>
     /// Checks completion conditions and advances the stage if met.
@@ -206,6 +241,8 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Editor-only: jump directly to any stage for testing.
     /// Call from a custom inspector button or the Unity console.
+    /// AudioManagerDebugHelper handles restoring the soundscape to the
+    /// correct state for the target stage.
     /// </summary>
     public void DEBUG_JumpToStage(Stage targetStage)
     {

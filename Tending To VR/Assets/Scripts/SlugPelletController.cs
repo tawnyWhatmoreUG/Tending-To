@@ -4,6 +4,19 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class SlugPelletController : MonoBehaviour
 {
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fired when the slug pellet bottle is picked up/selected.
+    /// </summary>
+    public event System.Action OnBottleSelected;
+
+    // -------------------------------------------------------------------------
+    // Inspector References
+    // -------------------------------------------------------------------------
+
     [Header("References")]
     public GameObject capModel;
     public Transform sprayAnchor;       // Empty at the bottle mouth — pellets spawn here
@@ -91,6 +104,9 @@ public class SlugPelletController : MonoBehaviour
     public void PickupBottle(SelectEnterEventArgs args)
     {
         if (isEquipped) return;
+
+        // Notify listeners that bottle has been selected/grabbed
+        OnBottleSelected?.Invoke();
 
         if (handRayInteractor != null) handRayInteractor.enabled = false;
         if (handLineVisual != null)    handLineVisual.enabled    = false;

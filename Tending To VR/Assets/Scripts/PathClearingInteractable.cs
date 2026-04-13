@@ -28,6 +28,13 @@ public class PathClearingInteractable : BaseStageInteractable
         
         if (dandelionController != null)
         {
+            // Get reference to weedkiller controller to track when it's equipped
+            WeedkillerController weedkillerController = dandelionController.weedkillScript;
+            if (weedkillerController != null)
+            {
+                weedkillerController.OnNozzleSelected += OnWeedkillerEquipped;
+            }
+            
             // Subscribe to completion event
             dandelionController.OnPathCleared += OnPathCleared;
         }
@@ -43,8 +50,20 @@ public class PathClearingInteractable : BaseStageInteractable
         
         if (dandelionController != null)
         {
+            WeedkillerController weedkillerController = dandelionController.weedkillScript;
+            if (weedkillerController != null)
+            {
+                weedkillerController.OnNozzleSelected -= OnWeedkillerEquipped;
+            }
+            
             dandelionController.OnPathCleared -= OnPathCleared;
         }
+    }
+
+    private void OnWeedkillerEquipped()
+    {
+        Debug.Log("[PathClearingInteractable] Weedkiller equipped! Signaling interaction start.");
+        SignalInteractionStarted();
     }
 
     private void OnPathCleared()
@@ -57,9 +76,15 @@ public class PathClearingInteractable : BaseStageInteractable
 
     private void OnDestroy()
     {
-        // Clean up event subscription
+        // Clean up event subscriptions
         if (dandelionController != null)
         {
+            WeedkillerController weedkillerController = dandelionController.weedkillScript;
+            if (weedkillerController != null)
+            {
+                weedkillerController.OnNozzleSelected -= OnWeedkillerEquipped;
+            }
+            
             dandelionController.OnPathCleared -= OnPathCleared;
         }
     }

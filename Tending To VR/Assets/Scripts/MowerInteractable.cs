@@ -38,9 +38,13 @@ public class MowerInteractable : BaseStageInteractable
     /// <summary>
     /// Wire this to the mower's XR Interactable SelectEntered (or Activated) event in the Inspector.
     /// Starts the mower and immediately marks the stage as complete so the player can move on.
+    /// Signals interaction start before completion.
     /// </summary>
     public void OnMowerClicked()
     {
+        // Signal that interaction has started (triggers poem playback)
+        SignalInteractionStarted();
+
         if (mower != null)
             mower.StartMowing();
 

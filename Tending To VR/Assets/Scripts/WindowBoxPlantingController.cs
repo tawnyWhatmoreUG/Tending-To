@@ -65,6 +65,11 @@ public class WindowBoxPlantingController : MonoBehaviour
 
     public event Action OnPlantingComplete;
 
+    /// <summary>
+    /// Fired when the player selects/grabs any plant for the first time.
+    /// </summary>
+    public event System.Action OnFirstPlantSelected;
+
     // -------------------------------------------------------------------------
     // Inspector Fields
     // -------------------------------------------------------------------------
@@ -193,6 +198,12 @@ public class WindowBoxPlantingController : MonoBehaviour
         {
             Debug.LogWarning($"[WindowBoxPlanting] Plant {plantIndex + 1} already placed, ignoring");
             return;
+        }
+
+        // Notify listeners on first plant selection
+        if (currentState == PlantingState.NoPlantInHand)
+        {
+            OnFirstPlantSelected?.Invoke();
         }
         
         Debug.Log($"[WindowBoxPlanting] Picking up Plant {plantIndex + 1}");

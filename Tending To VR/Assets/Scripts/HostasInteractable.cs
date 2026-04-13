@@ -36,6 +36,16 @@ public class HostasInteractable : BaseStageInteractable
             return;
         }
         
+        // Get reference to slug pellet controller to track when it's first equipped
+        if (hostaBeds.Length > 0 && hostaBeds[0] != null)
+        {
+            SlugPelletController slugPelletController = hostaBeds[0].slugPelletController;
+            if (slugPelletController != null)
+            {
+                slugPelletController.OnBottleSelected += OnSlugPelletEquipped;
+            }
+        }
+        
         // Subscribe to completion events for all beds
         foreach (var bed in hostaBeds)
         {
@@ -50,6 +60,16 @@ public class HostasInteractable : BaseStageInteractable
     {
         Debug.Log("[HostasInteractable] All hostas saved!");
         
+        // Unsubscribe from slug pellet selection
+        if (hostaBeds != null && hostaBeds.Length > 0 && hostaBeds[0] != null)
+        {
+            SlugPelletController slugPelletController = hostaBeds[0].slugPelletController;
+            if (slugPelletController != null)
+            {
+                slugPelletController.OnBottleSelected -= OnSlugPelletEquipped;
+            }
+        }
+        
         // Unsubscribe from all beds
         if (hostaBeds != null)
         {
@@ -61,6 +81,12 @@ public class HostasInteractable : BaseStageInteractable
                 }
             }
         }
+    }
+
+    private void OnSlugPelletEquipped()
+    {
+        Debug.Log("[HostasInteractable] Slug pellet bottle equipped! Signaling interaction start.");
+        SignalInteractionStarted();
     }
 
     private void OnBedCompleted()
@@ -79,6 +105,15 @@ public class HostasInteractable : BaseStageInteractable
     private void OnDestroy()
     {
         // Clean up event subscriptions
+        if (hostaBeds != null && hostaBeds.Length > 0 && hostaBeds[0] != null)
+        {
+            SlugPelletController slugPelletController = hostaBeds[0].slugPelletController;
+            if (slugPelletController != null)
+            {
+                slugPelletController.OnBottleSelected -= OnSlugPelletEquipped;
+            }
+        }
+        
         if (hostaBeds != null)
         {
             foreach (var bed in hostaBeds)

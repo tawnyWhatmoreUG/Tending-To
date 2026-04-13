@@ -3,7 +3,12 @@ guid: de0d7db566578d94d9b3085fec317792
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Sunflower
+    second: {fileID: 2100000, guid: e76d3d22e48fa4848acbabd1748a4acd, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

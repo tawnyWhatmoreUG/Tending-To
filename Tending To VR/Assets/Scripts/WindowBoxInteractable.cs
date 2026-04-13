@@ -29,6 +29,9 @@ public class WindowBoxInteractable : BaseStageInteractable
         
         if (plantingController != null)
         {
+            // Subscribe to first plant selection event to signal interaction start
+            plantingController.OnFirstPlantSelected += OnFirstPlantGrabbed;
+            
             // Subscribe to completion event
             plantingController.OnPlantingComplete += OnWindowBoxComplete;
         }
@@ -44,8 +47,15 @@ public class WindowBoxInteractable : BaseStageInteractable
         
         if (plantingController != null)
         {
+            plantingController.OnFirstPlantSelected -= OnFirstPlantGrabbed;
             plantingController.OnPlantingComplete -= OnWindowBoxComplete;
         }
+    }
+
+    private void OnFirstPlantGrabbed()
+    {
+        Debug.Log("[WindowBoxInteractable] First plant grabbed! Signaling interaction start.");
+        SignalInteractionStarted();
     }
 
     private void OnWindowBoxComplete()
@@ -61,6 +71,7 @@ public class WindowBoxInteractable : BaseStageInteractable
         // Clean up event subscription
         if (plantingController != null)
         {
+            plantingController.OnFirstPlantSelected -= OnFirstPlantGrabbed;
             plantingController.OnPlantingComplete -= OnWindowBoxComplete;
         }
     }

@@ -13,6 +13,12 @@ using UnityEngine;
 ///   3 — Rustling sounds     (removed: FeedTheFlowers)
 ///   4 — Low insect drone    (removed: DoTheWindowBox)
 ///
+/// FADE TIMING:
+///   AudioManager does NOT listen to OnStageChanged. Fades are driven
+///   externally by GameManager.TriggerSoundscapeFadeForCurrentStage(),
+///   which is called at the moment the player completes each interaction —
+///   not at the start of the next stage.
+///
 /// SETUP:
 ///   1. Add this script to a GameObject named "AudioManager".
 ///   2. Add one child GameObject per soundscape layer, each with an AudioSource:
@@ -58,7 +64,7 @@ public class AudioManager : MonoBehaviour
     // Tracks the target volume for each layer so concurrent fades don't conflict.
     private float[] _targetVolumes;
     private Coroutine[] _fadeCoroutines;
-    
+
     // Tracks which layers have been permanently faded out and should never return to active.
     private bool[] _permanentlyFadedOut;
 
@@ -78,34 +84,13 @@ public class AudioManager : MonoBehaviour
         InitialiseLayers();
     }
 
-    private void OnEnable()
-    {
-        GameManager.OnStageChanged += OnStageChanged;
-    }
-
-    private void OnDisable()
-    {
-        GameManager.OnStageChanged -= OnStageChanged;
-    }
+    // NOTE: AudioManager intentionally does NOT subscribe to GameManager.OnStageChanged.
+    // Soundscape fade timing is controlled by GameManager.TriggerSoundscapeFadeForCurrentStage(),
+    // called at interaction completion. This prevents layers from fading at stage start.
 
     private void Start()
     {
         StartAllLayers();
-    }
-
-    // -------------------------------------------------------------------------
-    // Stage Listener
-    // -------------------------------------------------------------------------
-
-    private void OnStageChanged(Stage newStage)
-    {
-        StageData data = GameManager.Instance?.GetStageData(newStage);
-        if (data == null) return;
-
-        if (data.soundscapeLayerToRemove >= 0)
-        {
-            FadeOutLayer(data.soundscapeLayerToRemove);
-        }
     }
 
     // -------------------------------------------------------------------------
@@ -115,6 +100,7 @@ public class AudioManager : MonoBehaviour
     /// <summary>
     /// Fades out a specific layer by index. Safe to call if already faded.
     /// Once faded out, the layer will never return to active state.
+    /// Called by GameManager when the player completes an interaction.
     /// </summary>
     public void FadeOutLayer(int index)
     {
@@ -149,13 +135,19 @@ public class AudioManager : MonoBehaviour
             _targetVolumes[i] = 0f;
             _permanentlyFadedOut[i] = true;
             soundscapeLayers[i].volume = 0f;
+
+            if (soundscapeLayers[i].isPlaying)
+                soundscapeLayers[i].Stop();
         }
+
+        Log("All soundscape layers silenced.");
     }
 
     /// <summary>
     /// Restores all layers to full volume and restarts playback.
     /// Useful for debug resets when jumping back to early stages.
     /// Clears the permanent fade-out tracking so layers can be reactivated.
+    /// Only call this from AudioManagerDebugHelper — never during normal gameplay.
     /// </summary>
     public void RestoreAll()
     {
@@ -231,9 +223,12 @@ public class AudioManager : MonoBehaviour
 
         for (int i = 0; i < soundscapeLayers.Length; i++)
         {
-            // Skip layers that have been permanently faded out.
+            // Never start a layer that has already been permanently faded out.
             if (_permanentlyFadedOut[i])
+            {
+                Log($"Layer {i} is permanently faded out — skipping playback.");
                 continue;
+            }
 
             var source = soundscapeLayers[i];
             if (source == null)
@@ -250,7 +245,7 @@ public class AudioManager : MonoBehaviour
                 source.Play();
         }
 
-        Log($"Started {soundscapeLayers.Length} soundscape layers.");
+        Log($"Started soundscape layers.");
     }
 
     // -------------------------------------------------------------------------
@@ -304,14 +299,6 @@ public class AudioManager : MonoBehaviour
     // -------------------------------------------------------------------------
 
 #if UNITY_EDITOR
-    /// <summary>
-    /// When debug jumping to an early stage, restore all layers so the
-    /// soundscape reflects the correct state for that point in the game.
-    /// Called automatically when OnStageChanged fires from a debug jump.
-    /// 
-    /// This re-evaluates which layers should be active based on the new stage
-    /// and fades out only those that should already be gone by that point.
-    /// </summary>
     private void OnValidate()
     {
         // Keeps _targetVolumes in sync if array size changes in Inspector.

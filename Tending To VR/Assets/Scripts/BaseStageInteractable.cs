@@ -11,13 +11,33 @@ using UnityEngine;
 /// USAGE:
 ///   When the player finishes the task, the subclass calls CompleteInteraction(),
 ///   which notifies GameManager automatically.
+///
+/// INTERACTION START SIGNAL:
+///   When the player actually begins interacting (e.g., grabs object, clicks button),
+///   the subclass calls SignalInteractionStarted() to notify listeners (e.g., StageSequencer)
+///   that interaction has begun. This is separate from Activate() which is setup only.
 /// </summary>
 public abstract class BaseStageInteractable : MonoBehaviour
 {
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fired when the player actually begins interacting with this stage.
+    /// Stage is passed as parameter for identification.
+    /// </summary>
+    public event System.Action<Stage> OnInteractionStarted;
+
+    // -------------------------------------------------------------------------
+    // Inspector & State
+    // -------------------------------------------------------------------------
+
     [Tooltip("The stage this interactable belongs to. Used for safety checks.")]
     [SerializeField] protected Stage myStage;
 
     private bool _hasCompleted = false;
+    private bool _interactionStarted = false;
 
     // -------------------------------------------------------------------------
     // Public API (called by StageSequencer)
@@ -26,10 +46,13 @@ public abstract class BaseStageInteractable : MonoBehaviour
     /// <summary>
     /// Called by StageSequencer when the player arrives at this stage's anchor.
     /// Enables interaction and runs any setup logic.
+    /// Does NOT trigger the OnInteractionStarted event; that comes when the player
+    /// actually interacts (e.g., grabs object or clicks button).
     /// </summary>
     public void Activate()
     {
         _hasCompleted = false;
+        _interactionStarted = false;
         Debug.Log($"[{GetType().Name}] Activated for stage: {myStage}");
         OnActivated();
     }
@@ -71,5 +94,21 @@ public abstract class BaseStageInteractable : MonoBehaviour
 
         OnCompleted();
         GameManager.Instance?.ReportInteractionComplete();
+    }
+
+    /// <summary>
+    /// Call this from the subclass when the player actually begins interacting
+    /// with this stage (e.g., when they grab an object, click a button, start using a tool).
+    /// This is separate from Activate() which is just setup.
+    /// Signals once and prevents duplicate events.
+    /// </summary>
+    protected void SignalInteractionStarted()
+    {
+        if (_interactionStarted)
+            return; // Already signaled, ignore duplicates
+
+        _interactionStarted = true;
+        Debug.Log($"[{GetType().Name}] Interaction started for stage: {myStage}");
+        OnInteractionStarted?.Invoke(myStage);
     }
 }
