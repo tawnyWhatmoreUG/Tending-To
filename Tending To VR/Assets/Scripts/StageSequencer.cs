@@ -83,6 +83,8 @@ public class StageSequencer : MonoBehaviour
 
         // Start the poem verse for this stage.
         PoemPlayer.Instance?.PlayVerseForStage(stage);
+
+        BrokenSceneController.Instance?.OnPlayerArrivedAtStage(stage);
     }
 
     // -------------------------------------------------------------------------
