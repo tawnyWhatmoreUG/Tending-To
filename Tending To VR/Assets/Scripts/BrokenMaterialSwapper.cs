@@ -15,10 +15,17 @@ public class BrokenMaterialSwapper : MonoBehaviour
     private Renderer _renderer;
     private Material _originalMaterial;
 
-    private void Start()
+    private void Awake()
     {
         _renderer = GetComponent<Renderer>();
         _originalMaterial = _renderer.material;
+    }
+
+    private void Start()
+    {
+        // Apply correct material for the current stage on first load.
+        if (GameManager.Instance != null)
+            OnStageChanged(GameManager.Instance.CurrentStage);
     }
 
     private void OnEnable()

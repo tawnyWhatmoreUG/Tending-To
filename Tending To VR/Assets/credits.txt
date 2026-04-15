@@ -142,3 +142,21 @@ Name: Sound Effect by <a href="https://pixabay.com/users/alex_jauk-16800354/?utm
 SCribble 
 link: https://pixabay.com/sound-effects/film-special-effects-scribble-6144/
 Name: Sound Effect by <a href="https://pixabay.com/users/freesound_community-46691455/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=6144">freesound_community</a> from <a href="https://pixabay.com/sound-effects//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=6144">Pixabay</a>
+
+
+Textures
+Dirt
+Link: https://opengameart.org/content/tileable-dirt-textures
+Name: Tileable Dirt Textures by Cethiel
+
+
+Crack
+Link: https://www.freepik.com/free-vector/crack-line-grunge-pattern-background_37416447.htm#fromView=keyword&page=1&position=1&uuid=fb9c5ab3-0639-4e04-8567-1c9645172202&query=Cracked+texture
+Name: Crack line grunge pattern background by vector_corp
+
+
+
+
+
+
+
