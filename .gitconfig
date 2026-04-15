@@ -1,0 +1,4 @@
+[merge "unityyamlmerge"]
+    name = Unity SmartMerge
+    driver = "C:\\Program Files\\Unity\\Hub\\Editor\\6000.3.5f2\\Editor\\Data\\Tools\\UnityYAMLMerge.exe" merge -p "$BASE" "$REMOTE" "$LOCAL" "$MERGED"
+    recursive = binary
