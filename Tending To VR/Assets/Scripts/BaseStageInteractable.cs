@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 /// <summary>
 /// Abstract base class for all stage interactables (Mower, Weedkiller, etc.).
@@ -36,8 +37,24 @@ public abstract class BaseStageInteractable : MonoBehaviour
     [Tooltip("The stage this interactable belongs to. Used for safety checks.")]
     [SerializeField] protected Stage myStage;
 
+    [Tooltip("XRSimpleInteractable components that should only be raycast-selectable while this stage is active. " +
+             "Disabled at Start, enabled on Activate(), disabled again on CompleteInteraction(). " +
+             "Must be set to Enabled in the Inspector initially — the script controls state at runtime.")]
+    [SerializeField] private XRBaseInteractable[] managedInteractables;
+
     private bool _hasCompleted = false;
     private bool _interactionStarted = false;
+
+    // -------------------------------------------------------------------------
+    // Unity Lifecycle
+    // -------------------------------------------------------------------------
+
+    protected virtual void Start()
+    {
+        // Start all managed interactables disabled so they can't be ray-selected
+        // until the player arrives at this stage's anchor.
+        SetManagedInteractablesEnabled(false);
+    }
 
     // -------------------------------------------------------------------------
     // Public API (called by StageSequencer)
@@ -54,6 +71,7 @@ public abstract class BaseStageInteractable : MonoBehaviour
         _hasCompleted = false;
         _interactionStarted = false;
         Debug.Log($"[{GetType().Name}] Activated for stage: {myStage}");
+        SetManagedInteractablesEnabled(true);
         OnActivated();
     }
 
@@ -93,6 +111,7 @@ public abstract class BaseStageInteractable : MonoBehaviour
         Debug.Log($"[{GetType().Name}] Interaction complete for stage: {myStage}");
 
         OnCompleted();
+        SetManagedInteractablesEnabled(false);
         GameManager.Instance?.ReportInteractionComplete();
     }
 
@@ -102,6 +121,20 @@ public abstract class BaseStageInteractable : MonoBehaviour
     /// This is separate from Activate() which is just setup.
     /// Signals once and prevents duplicate events.
     /// </summary>
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    private void SetManagedInteractablesEnabled(bool state)
+    {
+        if (managedInteractables == null) return;
+        foreach (var interactable in managedInteractables)
+        {
+            if (interactable != null)
+                interactable.enabled = state;
+        }
+    }
+
     protected void SignalInteractionStarted()
     {
         if (_interactionStarted)

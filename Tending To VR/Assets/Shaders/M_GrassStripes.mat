@@ -53,7 +53,7 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _StripeWidth: 50
+    - _StripeWidth: 80
     m_Colors:
     - _ColourA: {r: 0.5001245, g: 1, b: 0.39150938, a: 1}
     - _ColourB: {r: 0.22068125, g: 0.6792453, b: 0.20185116, a: 1}

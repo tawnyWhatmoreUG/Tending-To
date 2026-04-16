@@ -97,20 +97,6 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "168d8f562cfd48d28415d52b7b8e535b"
-                },
-                "m_SlotId": 2
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "6c74db84894a4378aa78e815d79032a5"
-                },
-                "m_SlotId": 0
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
                     "m_Id": "214aa51061dc4ae78a4cbe24f915bffd"
                 },
                 "m_SlotId": 1
@@ -118,6 +104,20 @@
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "8eac93a184fa48c79017562da417d3c5"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "253ef4032004460a8c7b05cf27fdd296"
+                },
+                "m_SlotId": 2
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "6c74db84894a4378aa78e815d79032a5"
                 },
                 "m_SlotId": 0
             }
@@ -527,10 +527,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -707.5,
-            "y": 1029.5,
-            "width": 208.00003051757813,
-            "height": 302.0
+            "x": -723.5555419921875,
+            "y": 907.5555419921875,
+            "width": 208.0,
+            "height": 301.7777099609375
         }
     },
     "m_Slots": [
@@ -760,7 +760,7 @@
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
     "m_Value": {
-        "x": 2.0,
+        "x": 5.0,
         "y": 2.0,
         "z": 2.0,
         "w": 2.0
@@ -786,10 +786,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -734.4999389648438,
-            "y": 1245.5,
-            "width": 208.0,
-            "height": 302.0
+            "x": -703.1110229492188,
+            "y": 1300.888916015625,
+            "width": 207.99993896484376,
+            "height": 301.777587890625
         }
     },
     "m_Slots": [
@@ -1414,9 +1414,9 @@
     "m_ShaderOutputName": "BaseColor",
     "m_StageCapability": 2,
     "m_Value": {
-        "x": 0.8588235378265381,
-        "y": 0.6431372761726379,
-        "z": 0.4156862795352936
+        "x": 0.8901960849761963,
+        "y": 0.7372549176216126,
+        "z": 0.5803921818733215
     },
     "m_DefaultValue": {
         "x": 0.5,

@@ -55,10 +55,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Density: 50
+    - _Density: 100
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _RevealRadius: 0
+    - _RevealRadius: 10
     m_Colors:
     - _GlowColour: {r: 0.25020456, g: 0.7830188, b: 0.12188498, a: 1}
     - _Origin: {r: 0, g: 0, b: 0, a: 0}

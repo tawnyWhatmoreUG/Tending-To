@@ -5,7 +5,7 @@ using UnityEngine;
 /// Manages all visual state changes during the broken phase of Tending To.
 ///
 /// TWO RESPONSIBILITIES:
-///   1. MODEL SWAPS — fired once when BrokenWindowBox begins (OnStageChanged).
+///   1. MODEL SWAPS — fired once when the player first teleports to BrokenWindowBox.
 ///      Hides normal-world objects and activates their broken replacements all at once.
 ///      Accumulates — nothing is ever hidden again once the broken phase starts.
 ///
@@ -99,28 +99,13 @@ public class BrokenSceneController : MonoBehaviour
             modelSwapsRoot.SetActive(false);
     }
 
-    private void OnEnable()
-    {
-        GameManager.OnStageChanged += OnStageChanged;
-    }
+    private void OnEnable() { }
 
-    private void OnDisable()
-    {
-        GameManager.OnStageChanged -= OnStageChanged;
-    }
+    private void OnDisable() { }
 
     // -------------------------------------------------------------------------
-    // Model Swaps — triggered by stage entry
+    // Model Swaps — triggered by anchor arrival
     // -------------------------------------------------------------------------
-
-    private void OnStageChanged(Stage stage)
-    {
-        if (stage == Stage.BrokenWindowBox && !_brokenPhaseStarted)
-        {
-            _brokenPhaseStarted = true;
-            ActivateModelSwaps();
-        }
-    }
 
     private void ActivateModelSwaps()
     {
@@ -147,11 +132,17 @@ public class BrokenSceneController : MonoBehaviour
     /// The stage value is already resolved to the correct broken stage by
     /// TeleportAnchorController.GetCurrentActiveStage() before this fires,
     /// so shared anchors between normal and broken stages are handled correctly.
-    /// Intentionally silent if no mapping exists — normal stages will also
-    /// trigger this and having no mapping for them is correct behaviour.
+    /// Also handles the one-time model swap when the player first arrives at
+    /// BrokenWindowBox. Intentionally silent for all other stages with no mapping.
     /// </summary>
     public void OnPlayerArrivedAtStage(Stage stage)
     {
+        if (stage == Stage.BrokenWindowBox && !_brokenPhaseStarted)
+        {
+            _brokenPhaseStarted = true;
+            ActivateModelSwaps();
+        }
+
         foreach (var mapping in effectMappings)
         {
             if (mapping.stage == stage)

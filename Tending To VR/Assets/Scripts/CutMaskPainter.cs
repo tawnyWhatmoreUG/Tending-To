@@ -7,6 +7,10 @@ public class CutMaskPainter : MonoBehaviour
     public Collider    robotCollider;    // The specific collider representing the cutting area
     public Collider    lawnCollider;     // same lawn collider as RobotMower
 
+    [Header("Paint Position")]
+    [Tooltip("Offset in the mower's local space. Negative Z moves the paint area behind the model.")]
+    public Vector3 paintLocalOffset = Vector3.zero;
+
     [Header("Texture settings")]
     public int resolution = 512;     // 512×512 is plenty for most lawns
 
@@ -60,7 +64,9 @@ public class CutMaskPainter : MonoBehaviour
     void LateUpdate()
     {
         if (robotTransform == null) return;
-        PaintAt(robotTransform.position);
+        Vector3 paintPos = robotTransform.TransformPoint(paintLocalOffset);
+        paintPos.y = robotTransform.position.y; // keep Y unchanged (only XZ matters for the mask)
+        PaintAt(paintPos);
     }
 
     public void PaintAt(Vector3 worldPos)

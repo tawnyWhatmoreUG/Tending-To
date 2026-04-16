@@ -71,8 +71,18 @@ public class NoteOnTable : MonoBehaviour
         if (noteRenderer == null)
             noteRenderer = GetComponent<Renderer>();
 
+        // Start disabled so it can't be selected during engine init;
+        // re-enabled in Start() once the scene is fully initialised.
+        _interactable.enabled = false;
+
         // Hook into XRI's select event (ray click).
         _interactable.selectEntered.AddListener(OnNoteSelected);
+    }
+
+    private void Start()
+    {
+        // PendingToDo is always the first stage — enable the note for player interaction.
+        _interactable.enabled = true;
     }
 
     private void OnEnable()
@@ -104,6 +114,7 @@ public class NoteOnTable : MonoBehaviour
             // Debug jump back to start — re-enable the note.
             _hasBeenPickedUp = false;
             gameObject.SetActive(true);
+            _interactable.enabled = true;
         }
         else if (!_hasBeenPickedUp)
         {
