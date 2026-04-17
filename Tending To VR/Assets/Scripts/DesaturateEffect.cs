@@ -2,160 +2,161 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Gradually desaturates the material on this GameObject when the player
-/// arrives at the teleport anchor for a specified stage.
+/// Lerps the "_Saturation" float property on a Renderer's material from 1
+/// (full colour) down to a configurable minimum when a target stage is reached.
 ///
 /// SETUP:
-///   1. Add to the lawn GameObject (needs a Renderer).
-///   2. Set 'triggerStage' to BrokenGrass in the Inspector.
-///   3. Call OnPlayerArrivedAtStage(stage) from BrokenSceneController,
-///      matching the pattern your other broken-stage effects use.
-///   4. Set 'desaturationDuration' to roughly match the verse clip length.
+///   1. Add this script to the GameObject whose Renderer you want to desaturate.
+///   2. Assign targetRenderer (or leave blank to auto-detect on this GameObject).
+///   3. Set triggerStage to the Stage at which desaturation should begin.
+///   4. Tune minimumSaturation, fadeDuration, and fadeDelay in the Inspector.
 ///
-/// SHADER NOTE:
-///   Option A (preferred): Use a shader with a _Saturation float property
-///   (e.g. Shader Graph with a Saturation node). Set the property name below.
-///   Option B (fallback): Enable 'useFallbackColorShift' — the script lerps
-///   _Color toward grey instead. Zero shader setup required.
+/// SHADER REQUIREMENT:
+///   The material must expose a "_Saturation" Float property
+///   (default 1 = full colour, 0 = greyscale).
 /// </summary>
-public class DesaturationEffect : MonoBehaviour
+public class DesaturateEffect : MonoBehaviour
 {
-    [Header("Trigger")]
-    [Tooltip("The stage that triggers this effect. Set to BrokenGrass.")]
-    [SerializeField] private Stage triggerStage = Stage.BrokenGrass;
+    // -------------------------------------------------------------------------
+    // Inspector
+    // -------------------------------------------------------------------------
 
-    [Header("Timing")]
-    [Tooltip("Duration of the full desaturation. Match to the verse clip length.")]
-    [SerializeField] private float desaturationDuration = 12f;
+    [Header("Stage Trigger")]
+    [Tooltip("The stage at which desaturation begins.")]
+    [SerializeField] private Stage triggerStage;
 
-    [Tooltip("Seconds to wait after arrival before desaturation begins.")]
-    [SerializeField] private float delayBeforeStart = 1f;
+    [Tooltip("If true, resets to full saturation when an earlier stage begins " +
+             "(useful when debug-jumping stages).")]
+    [SerializeField] private bool resetOnEarlierStage = true;
 
-    [Header("Shader (Option A — preferred)")]
-    [Tooltip("Float property name on your shader that controls saturation.")]
-    [SerializeField] private string saturationPropertyName = "_Saturation";
+    [Header("Renderer")]
+    [Tooltip("The Renderer whose material will be desaturated. " +
+             "Leave empty to auto-detect from this GameObject.")]
+    [SerializeField] private Renderer targetRenderer;
 
-    [Tooltip("Saturation at full colour. Usually 1.")]
-    [SerializeField] private float fullSaturation = 1f;
+    [Tooltip("Index of the material on the Renderer to affect (0 = first/only material).")]
+    [SerializeField] private int materialIndex = 0;
 
-    [Tooltip("Saturation when fully desaturated. Usually 0.")]
-    [SerializeField] private float desaturatedValue = 0f;
+    [Header("Saturation Settings")]
+    [Tooltip("Target saturation value at the end of the transition (0 = fully greyscale).")]
+    [SerializeField, Range(0f, 1f)] private float minimumSaturation = 0f;
 
-    [Header("Fallback (Option B — no custom shader needed)")]
-    [Tooltip("If true, lerps material _Color toward grey instead of driving a shader property.")]
-    [SerializeField] private bool useFallbackColorShift = false;
+    [Tooltip("How long in seconds the desaturation transition takes.")]
+    [SerializeField] private float fadeDuration = 3f;
 
-    [Tooltip("Target colour when fully desaturated. Cold grey-green suits a dead lawn.")]
-    [SerializeField] private Color desaturatedColor = new Color(0.65f, 0.68f, 0.65f);
+    [Tooltip("Delay in seconds after stage change before desaturation begins.")]
+    [SerializeField] private float fadeDelay = 0f;
 
     [Header("Debug")]
     [SerializeField] private bool verboseLogging = true;
 
     // -------------------------------------------------------------------------
+    // Private State
+    // -------------------------------------------------------------------------
 
-    private Renderer _renderer;
-    private Material _material;        // Instance material — safe to mutate
-    private Coroutine _effectCoroutine;
-    private Color _originalColor;
-    private bool _hasSaturationProperty;
+    private Material _instanceMaterial;
+    private Coroutine _fadeCoroutine;
+    private static readonly int SaturationProperty = Shader.PropertyToID("_Saturation");
 
+    // -------------------------------------------------------------------------
+    // Unity Lifecycle
     // -------------------------------------------------------------------------
 
     private void Awake()
     {
-        _renderer = GetComponent<Renderer>();
-        if (_renderer == null)
+        if (targetRenderer == null)
+            targetRenderer = GetComponent<Renderer>();
+
+        if (targetRenderer == null)
         {
-            Debug.LogError($"[DesaturationEffect] No Renderer on {gameObject.name}.");
+            Debug.LogError($"[DesaturateEffect] No Renderer found on {name}. Assign one in the Inspector.");
             enabled = false;
             return;
         }
 
-        _material = _renderer.material;   // Creates instance automatically
-        _originalColor = _material.color;
-        _hasSaturationProperty = _material.HasProperty(saturationPropertyName);
+        _instanceMaterial = targetRenderer.materials[materialIndex];
 
-        if (!useFallbackColorShift && !_hasSaturationProperty)
-            Debug.LogWarning($"[DesaturationEffect] Shader has no '{saturationPropertyName}'. " +
-                             "Enable 'useFallbackColorShift' or use a shader with that property.");
+        if (!_instanceMaterial.HasProperty(SaturationProperty))
+        {
+            Debug.LogError($"[DesaturateEffect] Material on {name} does not have a '_Saturation' property.");
+            enabled = false;
+            return;
+        }
+
+        _instanceMaterial.SetFloat(SaturationProperty, 1f);
     }
 
-    private void OnEnable()  => GameManager.OnStageChanged += OnStageChanged;
-    private void OnDisable() => GameManager.OnStageChanged -= OnStageChanged;
-
-    private void OnDestroy()
+    private void OnEnable()
     {
-        if (_material != null) Destroy(_material);
+        StageSequencer.OnPlayerArrived += OnStageChanged;
     }
 
+    private void OnDisable()
+    {
+        StageSequencer.OnPlayerArrived -= OnStageChanged;
+    }
+
+    // -------------------------------------------------------------------------
+    // Stage Listener
     // -------------------------------------------------------------------------
 
     private void OnStageChanged(Stage newStage)
     {
-        if (newStage != triggerStage)
+        if (newStage == triggerStage)
         {
-            StopEffect();
-            RestoreSaturation();
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+
+            _fadeCoroutine = StartCoroutine(DesaturateRoutine());
+            return;
         }
-        // Entering triggerStage: wait for anchor arrival, not stage change.
-    }
 
-    /// <summary>
-    /// Wire this up in BrokenSceneController.OnPlayerArrivedAtStage(),
-    /// same pattern as your other broken-stage effects.
-    /// </summary>
-    public void OnPlayerArrivedAtStage(Stage stage)
-    {
-        if (stage != triggerStage) return;
+        if (resetOnEarlierStage && (int)newStage < (int)triggerStage)
+        {
+            if (_fadeCoroutine != null)
+            {
+                StopCoroutine(_fadeCoroutine);
+                _fadeCoroutine = null;
+            }
 
-        Log($"Player arrived — desaturating over {desaturationDuration}s.");
-        StopEffect();
-        _effectCoroutine = StartCoroutine(DesaturationCoroutine());
+            _instanceMaterial.SetFloat(SaturationProperty, 1f);
+            Log($"Reset to full saturation (jumped back to {newStage}).");
+        }
     }
 
     // -------------------------------------------------------------------------
+    // Desaturation Coroutine
+    // -------------------------------------------------------------------------
 
-    private IEnumerator DesaturationCoroutine()
+    private IEnumerator DesaturateRoutine()
     {
-        if (delayBeforeStart > 0f)
-            yield return new WaitForSeconds(delayBeforeStart);
+        Log($"Desaturation triggered by stage: {triggerStage}. Delay: {fadeDelay}s, Duration: {fadeDuration}s.");
+
+        if (fadeDelay > 0f)
+            yield return new WaitForSeconds(fadeDelay);
 
         float elapsed = 0f;
-        while (elapsed < desaturationDuration)
+
+        while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
-            ApplySaturation(Mathf.Clamp01(elapsed / desaturationDuration));
+            float saturation = Mathf.Lerp(1f, minimumSaturation, elapsed / fadeDuration);
+            _instanceMaterial.SetFloat(SaturationProperty, saturation);
             yield return null;
         }
 
-        ApplySaturation(1f);
-        _effectCoroutine = null;
+        _instanceMaterial.SetFloat(SaturationProperty, minimumSaturation);
+        _fadeCoroutine = null;
         Log("Desaturation complete.");
     }
 
-    // t = 0 → full colour, t = 1 → fully desaturated
-    private void ApplySaturation(float t)
-    {
-        if (useFallbackColorShift || !_hasSaturationProperty)
-            _material.color = Color.Lerp(_originalColor, desaturatedColor, t);
-        else
-            _material.SetFloat(saturationPropertyName, Mathf.Lerp(fullSaturation, desaturatedValue, t));
-    }
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
-    private void RestoreSaturation()
+    private void Log(string message)
     {
-        if (_material == null) return;
-        if (useFallbackColorShift || !_hasSaturationProperty)
-            _material.color = _originalColor;
-        else
-            _material.SetFloat(saturationPropertyName, fullSaturation);
-        Log("Saturation restored.");
+        if (verboseLogging)
+            Debug.Log($"[DesaturateEffect] {message}");
     }
-
-    private void StopEffect()
-    {
-        if (_effectCoroutine != null) { StopCoroutine(_effectCoroutine); _effectCoroutine = null; }
-    }
-
-    private void Log(string msg) { if (verboseLogging) Debug.Log($"[DesaturationEffect] {msg}"); }
 }

@@ -63,6 +63,8 @@ public class BrokenSceneController : MonoBehaviour
              "Stages with no effect need no entry here.")]
     [SerializeField] private StageEffectMapping[] effectMappings;
 
+    [Tooltip("Desaturation effects to notify on anchor arrival (e.g. BrokenGrass lawn).")]
+
     [System.Serializable]
     public struct StageEffectMapping
     {
@@ -153,7 +155,6 @@ public class BrokenSceneController : MonoBehaviour
                         fx.SetActive(true);
                 }
                 Debug.Log($"[BrokenSceneController] Effects activated for stage: {stage}");
-                return;
             }
         }
     }

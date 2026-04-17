@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -25,6 +26,16 @@ public class PoemPlayer : MonoBehaviour
     // -------------------------------------------------------------------------
 
     public static PoemPlayer Instance { get; private set; }
+
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>Fired when a verse clip begins playing. Parameters: stage, clip length in seconds.</summary>
+    public static event Action<Stage, float> OnVerseStarted;
+
+    /// <summary>Fired when verse playback ends, either naturally or via StopPlayback().</summary>
+    public static event Action OnVerseStopped;
 
     // -------------------------------------------------------------------------
     // Inspector
@@ -119,6 +130,7 @@ public class PoemPlayer : MonoBehaviour
         }
         _audioSource.Stop();
         _audioSource.volume = 1f;
+        OnVerseStopped?.Invoke();
     }
 
     // -------------------------------------------------------------------------
@@ -133,6 +145,7 @@ public class PoemPlayer : MonoBehaviour
         _audioSource.clip = clip;
         _audioSource.volume = 0f;
         _audioSource.Play();
+        OnVerseStarted?.Invoke(stage, clip.length);
 
         yield return StartCoroutine(FadeVolume(0f, 1f, fadeInDuration));
 
@@ -149,6 +162,7 @@ public class PoemPlayer : MonoBehaviour
         _playbackCoroutine = null;
 
         Log($"Verse complete for stage: {stage}");
+        OnVerseStopped?.Invoke();
         GameManager.Instance?.ReportVerseComplete();
     }
 

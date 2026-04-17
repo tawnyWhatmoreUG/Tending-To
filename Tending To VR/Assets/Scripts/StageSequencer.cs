@@ -24,6 +24,17 @@ public class StageSequencer : MonoBehaviour
     public static StageSequencer Instance { get; private set; }
 
     // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fired when the player teleports to an anchor for a given stage.
+    /// Subscribe to this (instead of GameManager.OnStageChanged) when you want
+    /// to trigger effects on physical arrival rather than on stage start.
+    /// </summary>
+    public static event System.Action<Stage> OnPlayerArrived;
+
+    // -------------------------------------------------------------------------
     // Inspector
     // -------------------------------------------------------------------------
 
@@ -92,6 +103,7 @@ public class StageSequencer : MonoBehaviour
     public void OnPlayerArrivedAtAnchor(Stage stage)
     {
         Debug.Log($"[StageSequencer] Player arrived at anchor for stage: {stage}");
+        OnPlayerArrived?.Invoke(stage);
 
         // Activate this stage's interactable (if it has one).
         BaseStageInteractable interactable = GetInteractableForStage(stage);

@@ -184,14 +184,9 @@ public class NoteOnTable : MonoBehaviour
             return;
         }
 
-        if (_audioSource != null)
-        {
-            _audioSource.PlayOneShot(pickupSound, pickupSoundVolume);
-        }
-        else
-        {
-            Log("No AudioSource component found. Assign one to play sound.");
-        }
+        // PlayClipAtPoint spawns a temporary AudioSource in the scene,
+        // so it survives the note's GameObject being deactivated.
+        AudioSource.PlayClipAtPoint(pickupSound, transform.position, pickupSoundVolume);
     }
 
     private void Log(string message)

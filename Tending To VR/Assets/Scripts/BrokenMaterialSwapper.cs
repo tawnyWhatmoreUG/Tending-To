@@ -30,12 +30,12 @@ public class BrokenMaterialSwapper : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.OnStageChanged += OnStageChanged;
+        StageSequencer.OnPlayerArrived += OnStageChanged;
     }
 
     private void OnDisable()
     {
-        GameManager.OnStageChanged -= OnStageChanged;
+        StageSequencer.OnPlayerArrived -= OnStageChanged;
     }
 
     private void OnStageChanged(Stage newStage)
