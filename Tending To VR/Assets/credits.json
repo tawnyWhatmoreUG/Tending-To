@@ -1,0 +1,264 @@
+{
+  "sections": [
+    {
+      "title": "Images",
+      "entries": [
+        {
+          "name": "Floral Chair Pattern",
+          "artist": "0melapics",
+          "source": "Freepik"
+        },
+        {
+          "name": "Ripped Notebook Pages",
+          "artist": "gstudioimagen1",
+          "source": "Freepik"
+        },
+        {
+          "name": "Hand-Drawn Ink Pen Scribbles",
+          "artist": "Unknown",
+          "source": "Freepik"
+        },
+        {
+          "name": "Peat Bog",
+          "artist": "Clodagh Kilcoyne / Reuters",
+          "source": "Al Jazeera"
+        },
+        {
+          "name": "Tileable Dirt Textures",
+          "artist": "Cethiel",
+          "source": "OpenGameArt"
+        },
+        {
+          "name": "Crack Line Grunge Pattern",
+          "artist": "vector_corp",
+          "source": "Freepik"
+        }
+      ]
+    },
+    {
+      "title": "3D Models",
+      "entries": [
+        {
+          "name": "Dandelion Blossom Flower",
+          "artist": "Aparicio Silva 3D",
+          "source": "Sketchfab (CC-BY)"
+        },
+        {
+          "name": "Plant Pot",
+          "artist": "Aparicio Silva 3D",
+          "source": "Sketchfab (CC-BY)"
+        },
+        {
+          "name": "Potted Plant 01",
+          "artist": "Console Art Cybernetic",
+          "source": "Sketchfab"
+        },
+        {
+          "name": "Lupine Plant",
+          "artist": "rufusrockwell",
+          "source": "Sketchfab (CC-BY)"
+        },
+        {
+          "name": "Nettle, Blackberry, Daisies",
+          "artist": "LadyIReyna",
+          "source": "Sketchfab (CC-BY-NC)"
+        },
+        {
+          "name": "Bigleaf Hydrangea",
+          "artist": "Quixel Megascans",
+          "source": "Fab.com"
+        },
+        {
+          "name": "Daisy Pink Flower Bush",
+          "artist": "HKhalife",
+          "source": "Fab.com"
+        },
+        {
+          "name": "Goldmound Spiraea Red Flowering",
+          "artist": "HKhalife",
+          "source": "Fab.com"
+        },
+        {
+          "name": "Phlox Candystrip Flower Cluster",
+          "artist": "HKhalife",
+          "source": "Fab.com"
+        },
+        {
+          "name": "Yellow Coneflowers Cluster",
+          "artist": "HKhalife",
+          "source": "Fab.com"
+        },
+        {
+          "name": "Sunflower",
+          "artist": "Beeptea",
+          "source": "Sketchfab"
+        },
+        {
+          "name": "Arizona Red",
+          "artist": "HKhalife",
+          "source": "Fab.com"
+        },
+        {
+          "name": "Hedgehog 3D Model",
+          "artist": "grodan",
+          "source": "Sketchfab (CC-BY)"
+        },
+        {
+          "name": "Thrush Babbler",
+          "artist": "MooreLab",
+          "source": "Sketchfab (CC-BY)"
+        },
+        {
+          "name": "Worker Honey Bee",
+          "artist": "rosytoonz",
+          "source": "Sketchfab (CC-BY-NC)"
+        }
+      ]
+    },
+    {
+      "title": "Audio & Sound Effects",
+      "entries": [
+        {
+          "name": "Pop-Up Notify Sound",
+          "artist": "AI Generated",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Spray Sound",
+          "artist": "BernzSed",
+          "source": "Freesound / Pixabay"
+        },
+        {
+          "name": "Powder Bottle Shake",
+          "artist": "Spin Opel",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Pill Bottle Shake",
+          "artist": "photos_",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Slicing Soft Food",
+          "artist": "Alex (oxidvideos)",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Electric Toothbrush",
+          "artist": "SamuelGremaud",
+          "source": "Freesound / Pixabay"
+        },
+        {
+          "name": "Beep 6",
+          "artist": "Eponn",
+          "source": "Freesound / Pixabay"
+        },
+        {
+          "name": "Floating Pad Magic",
+          "artist": "humordome",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Birds Singing",
+          "artist": "freesound_community",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Birds Singing 2",
+          "artist": "ana_sofia_",
+          "source": "Freesound"
+        },
+        {
+          "name": "Cricket on a Summer Night",
+          "artist": "u_s8g68hg8n6",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Summer Insects Ambience",
+          "artist": "Soul_Serenity_Sounds",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Field Bees Ambience",
+          "artist": "SoundsForYou",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Summer Outdoors Ambience",
+          "artist": "Alexander Jauk",
+          "source": "Pixabay"
+        },
+        {
+          "name": "Scribble Sound",
+          "artist": "freesound_community",
+          "source": "Pixabay"
+        }
+      ]
+    },
+    {
+      "title": "Fonts",
+      "entries": [
+        {
+          "name": "Architects Daughter",
+          "artist": "Google Fonts Catalog",
+          "source": "Google Fonts"
+        },
+        {
+          "name": "Rubik Mono One",
+          "artist": "Google Fonts Catalog",
+          "source": "Google Fonts"
+        }
+      ]
+    },
+    {
+      "title": "Tools & Engines",
+      "entries": [
+        {
+          "name": "Unity Engine",
+          "artist": "Unity Technologies",
+          "source": "Unity 2022+ LTS"
+        },
+        {
+          "name": "TextMesh Pro",
+          "artist": "Unity Technologies",
+          "source": "Unity Built-in"
+        },
+        {
+          "name": "XR Interaction Toolkit",
+          "artist": "Unity Technologies",
+          "source": "Unity XR Package"
+        },
+        {
+            "name": "Blender",
+            "artist": "Blender Foundation",
+            "source": "Blender.org"
+        },
+        {
+            "name": "Affinity",
+            "artist": "Serif, a Canva company",
+            "source": "affinity.studio"
+        }
+      ]
+    },
+    {
+      "title": "Special Thanks & QA",
+      "entries": [
+        {
+          "name": "Playtesting & Feedback",
+          "artist": "Family & Friends",
+          "source": "Tending To VR Development"
+        },
+        {
+          "name": "Core Development & Scripting",
+          "artist": "AI-Assisted Development",
+          "source": "Gemini, Claude, Copilot"
+        },
+        {
+          "name": "Game Design & Direction",
+          "artist": "Tawny Whatmore",
+          "source": "Tending To VR Creator"
+        }
+      ]
+    }
+  ]
+}
