@@ -101,7 +101,7 @@ public class WindowBoxPlantingController : MonoBehaviour
     [Header("VR Hand")]
     public UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor handRayInteractor;
     public UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual handLineVisual;
-    public InputActionProperty triggerAction;
+    public InputActionProperty gripAction;
 
     [Header("Plant Alignment")]
     public float plantRotationOffset = 0f;
@@ -166,10 +166,10 @@ public class WindowBoxPlantingController : MonoBehaviour
             
             if (isHoveringWindowBox)
             {
-                float triggerValue = triggerAction.action.ReadValue<float>();
+                float triggerValue = gripAction.action.ReadValue<float>();
                 if (triggerValue > 0.1f)
                 {
-                    Debug.Log($"[WindowBoxPlanting] Trigger pulled ({triggerValue:F2}) while hovering - placing plant");
+                    Debug.Log($"[WindowBoxPlanting] Grip pressed ({triggerValue:F2}) while hovering - placing plant");
                     PlacePlantInWindowBox();
                 }
             }

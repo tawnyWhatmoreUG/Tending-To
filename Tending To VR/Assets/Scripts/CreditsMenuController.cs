@@ -30,6 +30,7 @@ public class CreditsMenuController : MonoBehaviour
 
     /// <summary>
     /// Generic fade-and-load coroutine.
+    /// Keeps the black overlay alive through the scene transition to prevent a flash of the default scene.
     /// </summary>
     private System.Collections.IEnumerator FadeAndLoadScene(string sceneName)
     {
@@ -43,8 +44,36 @@ public class CreditsMenuController : MonoBehaviour
                 yield return null;
             }
             fadeCanvasGroup.alpha = 1f;
+
+            // Persist the black overlay into the next scene so there is no flash
+            DontDestroyOnLoad(fadeCanvasGroup.transform.root.gameObject);
         }
 
-        SceneManager.LoadScene(sceneName);
+        // Preload the scene without activating it so we control exactly when it appears
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        asyncLoad.allowSceneActivation = false;
+
+        while (asyncLoad.progress < 0.9f)
+        {
+            yield return null;
+        }
+
+        // Activate the scene while the screen is still black
+        asyncLoad.allowSceneActivation = true;
+        yield return asyncLoad;
+
+        // Fade back in now that the new scene is fully active
+        if (fadeCanvasGroup != null)
+        {
+            float elapsedTime = 0f;
+            while (elapsedTime < fadeDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                fadeCanvasGroup.alpha = Mathf.Clamp01(1f - (elapsedTime / fadeDuration));
+                yield return null;
+            }
+            fadeCanvasGroup.alpha = 0f;
+            Destroy(fadeCanvasGroup.transform.root.gameObject);
+        }
     }
 }

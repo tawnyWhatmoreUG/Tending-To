@@ -265,12 +265,9 @@ public class FertiliserController : MonoBehaviour
         // Start the granular pour particle effect on the scoop
         if (pourParticles != null) pourParticles.Play();
 
-        // Halfway through the pour, hide the fertiliser mesh (it's "fallen out")
-        yield return new WaitForSeconds(pourDuration * 0.5f);
+        // Wait for the pour, then hide the fertiliser mesh and stop particles
+        yield return new WaitForSeconds(pourDuration);
         if (scoopFertiliserMesh != null) scoopFertiliserMesh.SetActive(false);
-
-        // Finish the pour duration then stop particles
-        yield return new WaitForSeconds(pourDuration * 0.5f);
         if (pourParticles != null) pourParticles.Stop();
 
         // Sparkle on the soil to show fertiliser has been applied

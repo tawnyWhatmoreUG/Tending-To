@@ -194,8 +194,8 @@ public class AudioManager : MonoBehaviour
             soundscapeLayers[i].loop = true;
             soundscapeLayers[i].playOnAwake = false;
             soundscapeLayers[i].spatialBlend = 0f; // 2D ambient
-            soundscapeLayers[i].volume = 1f;
-            _targetVolumes[i] = 1f;
+            // Respect the volume set in the Inspector as the starting value.
+            _targetVolumes[i] = soundscapeLayers[i].volume;
             _permanentlyFadedOut[i] = false;
         }
     }

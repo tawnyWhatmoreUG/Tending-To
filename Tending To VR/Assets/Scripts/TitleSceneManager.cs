@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 
 public class TitleSceneManager : MonoBehaviour
 {
@@ -10,16 +10,31 @@ public class TitleSceneManager : MonoBehaviour
     public string mainSceneName = "MainScene";
 
     [Header("Fade Settings")]
-    [Tooltip("Duration of the fade-out in seconds")]
+    [Tooltip("Duration of the fade-in from black when the title scene opens")]
+    public float fadeInDuration = 1.5f;
+    [Tooltip("Duration of the fade-out to black when transitioning")]
     public float fadeDuration = 1.5f;
+    [Tooltip("Seconds to hold on black before loading the next scene")]
+    public float holdDuration = 0.3f;
+    [Tooltip("Assign the fade overlay CanvasGroup here")]
+    public CanvasGroup fadeCanvasGroup;
 
-    private CanvasGroup fadeCanvasGroup;
+    [Header("Teleport Trigger")]
+    [Tooltip("Assign the TeleportationAnchor that triggers the transition to the main scene")]
+    public TeleportationAnchor teleportAnchor;
+
+    [Header("Audio")]
+    [Tooltip("Optional sound to play when the transition begins")]
+    public AudioClip transitionSound;
+    private AudioSource audioSource;
+
     private bool isTransitioning = false;
 
     void Start()
     {
-        // Find or create the CanvasGroup used for fading
-        fadeCanvasGroup = GetComponentInChildren<CanvasGroup>();
+        // Fall back to searching children if not assigned in the Inspector
+        if (fadeCanvasGroup == null)
+            fadeCanvasGroup = GetComponentInChildren<CanvasGroup>();
 
         if (fadeCanvasGroup == null)
         {
@@ -28,77 +43,77 @@ public class TitleSceneManager : MonoBehaviour
             return;
         }
 
-        // Start fully visible
-        fadeCanvasGroup.alpha = 0f;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        if (teleportAnchor != null)
+            teleportAnchor.teleporting.AddListener(OnTeleportedToAnchor);
+        else
+            Debug.LogWarning("TitleSceneManager: No TeleportationAnchor assigned.");
+
+        // Start fully black and fade in
+        fadeCanvasGroup.alpha = 1f;
+        StartCoroutine(FadeIn());
     }
 
-    void Update()
+    void OnDestroy()
     {
-        if (isTransitioning) return;
+        if (teleportAnchor != null)
+            teleportAnchor.teleporting.RemoveListener(OnTeleportedToAnchor);
+    }
 
-        // Detect any button press across keyboard, gamepad, or XR controllers
-        if (AnyButtonPressed())
-        {
+    private void OnTeleportedToAnchor(TeleportingEventArgs args)
+    {
+        if (!isTransitioning)
             StartCoroutine(FadeAndLoadScene());
-        }
     }
 
-    private bool AnyButtonPressed()
+    private IEnumerator FadeIn()
     {
-        // Keyboard - any key
-        if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
-            return true;
+        isTransitioning = true;
 
-        // Gamepad - any button
-        if (Gamepad.current != null)
+        float elapsed = 0f;
+        while (elapsed < fadeInDuration)
         {
-            foreach (var control in Gamepad.current.allControls)
-            {
-                if (control is UnityEngine.InputSystem.Controls.ButtonControl btn
-                    && btn.wasPressedThisFrame)
-                    return true;
-            }
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / fadeInDuration);
+            fadeCanvasGroup.alpha = 1f - t;
+            yield return null;
         }
 
-        // XR Controllers - primary and secondary buttons, triggers, grips
-        #if UNITY_XR
-        var leftHand = InputSystem.GetDevice<UnityEngine.XR.OpenXR.Input.OpenXRController>(
-            CommonUsages.LeftHand);
-        var rightHand = InputSystem.GetDevice<UnityEngine.XR.OpenXR.Input.OpenXRController>(
-            CommonUsages.RightHand);
-
-        if (leftHand != null || rightHand != null)
-        {
-            foreach (var device in InputSystem.devices)
-            {
-                foreach (var control in device.allControls)
-                {
-                    if (control is UnityEngine.InputSystem.Controls.ButtonControl btn
-                        && btn.wasPressedThisFrame)
-                        return true;
-                }
-            }
-        }
-        #endif
-
-        return false;
+        fadeCanvasGroup.alpha = 0f;
+        isTransitioning = false;
     }
 
     private IEnumerator FadeAndLoadScene()
     {
         isTransitioning = true;
 
-        float elapsed = 0f;
+        if (transitionSound != null)
+            audioSource.PlayOneShot(transitionSound);
 
+        // Begin loading in the background immediately without activating yet
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(mainSceneName);
+        asyncLoad.allowSceneActivation = false;
+
+        float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
-            fadeCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / fadeDuration);
+            fadeCanvasGroup.alpha = t;
             yield return null;
         }
 
         fadeCanvasGroup.alpha = 1f;
 
-        SceneManager.LoadScene(mainSceneName);
+        yield return new WaitForSeconds(holdDuration);
+
+        // Wait until the scene is fully ready (Unity caps async progress at 0.9 before activation)
+        while (asyncLoad.progress < 0.9f)
+            yield return null;
+
+        asyncLoad.allowSceneActivation = true;
     }
 }

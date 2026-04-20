@@ -96,6 +96,11 @@ public class WristCanvas : MonoBehaviour
         Instance = this;
 
         _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+        {
+            Debug.LogWarning("[WristCanvas] No AudioSource found — adding one automatically.");
+            _audioSource = gameObject.AddComponent<AudioSource>();
+        }
 
         // Hide the canvas at start — shown when note is picked up in PendingToDo.
         if (wristMenuRoot != null)
@@ -192,7 +197,17 @@ public class WristCanvas : MonoBehaviour
 
     private void PlayScribbleSound()
     {
-        if (scribbleSound == null || _audioSource == null) return;
+        if (scribbleSound == null)
+        {
+            Debug.LogWarning("[WristCanvas] PlayScribbleSound called but scribbleSound clip is not assigned in the Inspector.");
+            return;
+        }
+        if (_audioSource == null)
+        {
+            Debug.LogWarning("[WristCanvas] PlayScribbleSound called but _audioSource is null.");
+            return;
+        }
+        Debug.Log($"[WristCanvas] Playing scribble sound '{scribbleSound.name}' at volume {scribbleSoundVolume}.");
         _audioSource.PlayOneShot(scribbleSound, scribbleSoundVolume);
     }
 

@@ -38,7 +38,7 @@ public class CreditsPageController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI pageCounterText;
     [SerializeField] private CanvasGroup fadeCanvasGroup;
     
-    [SerializeField] private int entriesPerPage = 45;
+    [SerializeField] private int linesPerPage = 18;  // visual rendered lines per page
     [SerializeField] private float secondsPerPage = 8f;      // How long to display each page
     [SerializeField] private float autoFadeDelay = 2f;       // Pause on final page before fading
     [SerializeField] private float fadeDuration = 2f;        // Fade-out duration
@@ -121,20 +121,26 @@ public class CreditsPageController : MonoBehaviour
             pageLines.Add(""); // Blank line between sections
         }
 
-        // Split lines into pages based on entriesPerPage
+        // Split items into pages based on actual rendered line count
         List<string> currentPage = new List<string>();
-        foreach (string line in pageLines)
+        int currentLineCount = 0;
+        foreach (string item in pageLines)
         {
-            currentPage.Add(line);
+            int itemLineCount = item.Split('\n').Length;
 
-            if (currentPage.Count >= entriesPerPage)
+            // Start a new page if this item would overflow (keep at least one item per page)
+            if (currentLineCount + itemLineCount > linesPerPage && currentPage.Count > 0)
             {
                 _pages.Add(string.Join("\n", currentPage));
                 currentPage.Clear();
+                currentLineCount = 0;
             }
+
+            currentPage.Add(item);
+            currentLineCount += itemLineCount;
         }
 
-        // Add any remaining lines as the final page
+        // Add any remaining items as the final page
         if (currentPage.Count > 0)
         {
             _pages.Add(string.Join("\n", currentPage));

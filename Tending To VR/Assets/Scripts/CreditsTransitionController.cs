@@ -14,46 +14,15 @@ public class CreditsTransitionController : MonoBehaviour
     [SerializeField] private float fadeDuration = 3f;
 
     private bool _hasTriggeredCredits = false;
-    private Coroutine _fadeCoroutine;
 
     private void OnEnable()
     {
-        GameManager.OnStageChanged += OnStageChanged;
+        WineGlassInteractable.OnWineGlassHeld += TriggerCredits;
     }
 
     private void OnDisable()
     {
-        GameManager.OnStageChanged -= OnStageChanged;
-    }
-
-    /// <summary>
-    /// Called when the stage changes. If we've reached Relax and it's complete, trigger credits.
-    /// </summary>
-    private void OnStageChanged(Stage stage)
-    {
-        // Only trigger once per game session
-        if (_hasTriggeredCredits)
-            return;
-
-        // Check if we've reached the final Relax stage
-        if (stage == Stage.Relax)
-        {
-            _hasTriggeredCredits = true;
-            // Subscribe to interaction complete to know when wine glass is picked up
-            StartCoroutine(WaitForRelaxCompletion());
-        }
-    }
-
-    /// <summary>
-    /// Waits for the Relax stage interaction to complete, then triggers the credits transition.
-    /// </summary>
-    private IEnumerator WaitForRelaxCompletion()
-    {
-        // Wait a short moment to ensure the stage is fully initialized
-        yield return new WaitForSeconds(0.5f);
-
-        // Now fade to black and load credits scene
-        yield return StartCoroutine(FadeToBlackAndLoadCredits());
+        WineGlassInteractable.OnWineGlassHeld -= TriggerCredits;
     }
 
     /// <summary>
