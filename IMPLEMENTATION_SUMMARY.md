@@ -13,6 +13,7 @@
   - Special Thanks & QA (playtesting, AI assistance, creator credit)
 - **Format**: Structured JSON with name, artist, and source for each entry
 - **Feature**: Rich text tags embedded in C# for sizing/formatting
+- **VR-Optimized**: Compact layout for comfortable viewing in world space
 
 ### 2. **Scripts Created**
 

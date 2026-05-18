@@ -3,6 +3,13 @@
 ## Overview
 This guide walks you through creating the `CreditsScene.unity` manually in the Unity Editor.
 
+## VR Canvas Setup
+For a better VR experience, this setup uses **World Space Canvas** instead of Screen Space:
+- **World Space** creates immersion — the player can look around naturally at the credits
+- The canvas renders as a 3D billboard in the world, positioned in front of the camera
+- Players can adjust their viewing angle without feeling locked to a screen
+- More comfortable for extended reading during credits
+
 ## Prerequisites
 - `CreditsTransitionController.cs` - already created
 - `CreditsPageController.cs` - already created
@@ -28,10 +35,18 @@ This guide walks you through creating the `CreditsScene.unity` manually in the U
 2. Position it looking at the canvas area
 3. No need for XR rig in this scene (static presentation)
 
-#### Canvas (UI Root)
+#### Canvas (UI Root - World Space)
 1. Create a new `Canvas` under the scene
-2. Set Canvas Scaler to **Scale with Screen Size** (1920x1080 reference)
-3. Name it `UIRoot`
+2. Name it `UIRoot`
+3. **Canvas** component settings:
+   - **Render Mode**: **World Space** (NOT Screen Space)
+   - Update Canvas Rect Transform:
+     - Width: 2560 (in world units)
+     - Height: 1440 (in world units)
+     - Position: (0, 0, 5) - 5 units in front of camera
+     - Rotation: (0, 0, 0)
+4. **Canvas Scaler** component:
+   - Dynamic Pixels Per Unit: 100 (adjust based on readability preference)
 
 ---
 
@@ -39,11 +54,14 @@ This guide walks you through creating the `CreditsScene.unity` manually in the U
 
 1. Create a new `Image` under `Canvas`
 2. Name it `FadePanel`
-3. Set RectTransform to **Stretch** (full screen)
-4. Set Image color to **Black** (255, 255, 255) with **Alpha = 0** (start transparent)
+3. Set RectTransform:
+   - Anchor: Top Left  
+   - Offset: (0, 0)
+   - Size: (2560, 1440) - full canvas coverage
+4. Set Image color to **Black** (0, 0, 0) with **Alpha = 0** (start transparent)
 5. Add **CanvasGroup** component to `FadePanel`
 6. Set CanvasGroup Alpha to **0** initially
-7. Create new Material or use default Image material
+7. Ensure Image blocking is enabled for interaction blocking if needed
 
 ---
 
@@ -52,19 +70,19 @@ This guide walks you through creating the `CreditsScene.unity` manually in the U
 1. Create a new **Panel** under `Canvas`
 2. Name it `CreditsPanel`
 3. Set RectTransform:
-   - Anchor: Middle Center
+   - Anchor: Top Left
    - Offset: (0, 0)
-   - Size: (1600, 1000) - adjust as needed
-4. Set Image color to **Dark background** (e.g., RGB: 20, 20, 20) or transparent
-5. Add **Mask** component (optional, for scrolling overflow)
+   - Size: (2560, 1440) - matches canvas size for full coverage
+4. Set Image color to **Dark background** (e.g., RGB: 30, 30, 30) with Alpha: 255
+5. Add **Mask** component (optional, for overflow handling)
 
 #### Credits Text Display
 1. Create a new **TextMeshPro - Text (UI)** under `CreditsPanel`
 2. Name it `CreditsText`
 3. Set RectTransform:
    - Anchor: Top Left
-   - Offset: (20, -20) - left and top padding
-   - Size: (1560, 1000)
+   - Offset: (50, -50) - padding from top-left
+   - Size: (2460, 1340) - leave room for padding
 4. Text component settings:
    - **Font**: Use default TMP font or import custom
    - **Font Size**: 28 (will be overridden by JSON tags)
@@ -97,8 +115,8 @@ This guide walks you through creating the `CreditsScene.unity` manually in the U
 2. Name it `PageCounterText`
 3. Set RectTransform:
    - Anchor: Bottom Right
-   - Offset: (-50, 50) - 50 pixels from bottom right corner
-   - Size: (300, 60)
+   - Offset: (-150, 80) - adjust from bottom right
+   - Size: (500, 100)
 4. Text component settings:
    - Font Size: 24
    - Alignment: Bottom Right
@@ -207,12 +225,36 @@ If you want extra menu buttons on the credits scene:
 - **Issue**: Screen doesn't fade to black
 - **Solution**:
   - Verify FadePanel's CanvasGroup is assigned
-  - Check FadePanel is full-screen (RectTransform set to Stretch)
-  - Verify FadePanel Image color is Black
+  - Check FadePanel Size matches canvas (2560x1440 for world space)
+  - Verify FadePanel Image color is Black (0, 0, 0) with Alpha 255
+  - Ensure FadePanel is positioned at Offset (0, 0)
+
+### Text Too Small or Hard to Read
+- **Issue**: World space text is too small/blurry
+- **Solution**:
+  - Adjust Canvas **Dynamic Pixels Per Unit** in inspector (default 100)
+  - Move canvas closer/farther from camera by adjusting Canvas Position Z
+  - Increase base font sizes if needed in text components
+  - Ensure Main Camera is looking at canvas position
+
+### Canvas Not Appearing
+- **Issue**: Canvas doesn't render in game view or appears in wrong position
+- **Solution**:
+  - Verify Canvas **Render Mode** is set to **World Space** (not Screen Space)
+  - Check Canvas Position is correct (default: 0, 0, 5) - should be in front of camera
+  - Verify Main Camera is active and positioned to view canvas area
+  - Check Canvas has **Graphic Raycaster** component (usually added automatically)
+  - Ensure text and image components are children of the canvas
 
 ---
 
 ## Additional Notes
+
+- **World Space Canvas**: This setup uses a world space canvas for immersion in VR
+  - Canvas Billboard Model: Positioned 5 units in front of camera at (0, 0, 5)
+  - Player can look around naturally without feeling locked to a screen
+  - More comfortable for extended reading during credits
+  - Adjust Canvas size (2560x1440) and position to fit your preferences
 
 - **Font Size in Credits**: The JSON formatting uses TextMesh Pro size tags:
   - `<size=36>` for section titles
@@ -220,7 +262,7 @@ If you want extra menu buttons on the credits scene:
   - `<size=14>` for artist/source info
   - Adjust these in `CreditsPageController.cs` if needed
 
-- **Page Count**: With 45 entries per page, ~6-7 pages estimated
+- **Page Count**: With 45 entries per page, ~3-4 pages estimated
   - Adjust `Entries Per Page` in inspector to fit your design
 
 - **Performance**: JSON parsing happens on Start, so first frame may have slight delay
